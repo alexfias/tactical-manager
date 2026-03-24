@@ -1,0 +1,56 @@
+{
+  "teams": [
+    {
+      "name": "Northchester FC",
+      "tactic": {
+        "pressing": 80,
+        "defensive_line": 72,
+        "width": 58,
+        "directness": 55,
+        "tempo": 70
+      },
+      "squad": [
+        {"name":"GK1","position":"GK","passing":68,"technique":50,"finishing":5,"defending":60,"positioning":72,"pace":35,"stamina":60,"work_rate":55},
+        {"name":"D1","position":"DEF","passing":65,"technique":58,"finishing":20,"defending":75,"positioning":75,"pace":70,"stamina":78,"work_rate":82},
+        {"name":"D2","position":"DEF","passing":62,"technique":56,"finishing":18,"defending":78,"positioning":76,"pace":67,"stamina":75,"work_rate":84},
+        {"name":"D3","position":"DEF","passing":60,"technique":54,"finishing":15,"defending":73,"positioning":74,"pace":72,"stamina":77,"work_rate":80},
+        {"name":"D4","position":"DEF","passing":64,"technique":57,"finishing":16,"defending":74,"positioning":73,"pace":69,"stamina":79,"work_rate":79},
+        {"name":"M1","position":"MID","passing":78,"technique":74,"finishing":45,"defending":62,"positioning":74,"pace":68,"stamina":80,"work_rate":86},
+        {"name":"M2","position":"MID","passing":75,"technique":71,"finishing":42,"defending":64,"positioning":72,"pace":66,"stamina":82,"work_rate":88},
+        {"name":"M3","position":"MID","passing":73,"technique":72,"finishing":40,"defending":60,"positioning":70,"pace":69,"stamina":79,"work_rate":84},
+        {"name":"A1","position":"ATT","passing":68,"technique":76,"finishing":78,"defending":30,"positioning":76,"pace":82,"stamina":76,"work_rate":85},
+        {"name":"A2","position":"ATT","passing":66,"technique":74,"finishing":75,"defending":28,"positioning":74,"pace":84,"stamina":77,"work_rate":83},
+        {"name":"A3","position":"ATT","passing":64,"technique":70,"finishing":72,"defending":32,"positioning":72,"pace":80,"stamina":78,"work_rate":87},
+        {"name":"D5","position":"DEF","passing":58,"technique":52,"finishing":15,"defending":70,"positioning":71,"pace":66,"stamina":73,"work_rate":76},
+        {"name":"M4","position":"MID","passing":70,"technique":68,"finishing":38,"defending":55,"positioning":67,"pace":64,"stamina":75,"work_rate":78},
+        {"name":"A4","position":"ATT","passing":60,"technique":69,"finishing":70,"defending":25,"positioning":70,"pace":79,"stamina":72,"work_rate":74}
+      ]
+    },
+    {
+      "name": "Riverside Town",
+      "tactic": {
+        "pressing": 42,
+        "defensive_line": 38,
+        "width": 62,
+        "directness": 68,
+        "tempo": 48
+      },
+      "squad": [
+        {"name":"GK1","position":"GK","passing":60,"technique":46,"finishing":5,"defending":62,"positioning":74,"pace":30,"stamina":55,"work_rate":50},
+        {"name":"D1","position":"DEF","passing":58,"technique":52,"finishing":18,"defending":79,"positioning":79,"pace":60,"stamina":72,"work_rate":74},
+        {"name":"D2","position":"DEF","passing":57,"technique":53,"finishing":17,"defending":80,"positioning":78,"pace":58,"stamina":70,"work_rate":73},
+        {"name":"D3","position":"DEF","passing":56,"technique":50,"finishing":14,"defending":76,"positioning":76,"pace":62,"stamina":71,"work_rate":75},
+        {"name":"D4","position":"DEF","passing":55,"technique":51,"finishing":16,"defending":77,"positioning":77,"pace":61,"stamina":73,"work_rate":72},
+        {"name":"M1","position":"MID","passing":74,"technique":68,"finishing":43,"defending":66,"positioning":75,"pace":60,"stamina":71,"work_rate":70},
+        {"name":"M2","position":"MID","passing":72,"technique":66,"finishing":41,"defending":67,"positioning":74,"pace":59,"stamina":70,"work_rate":69},
+        {"name":"M3","position":"MID","passing":70,"technique":65,"finishing":39,"defending":65,"positioning":72,"pace":61,"stamina":69,"work_rate":71},
+        {"name":"A1","position":"ATT","passing":62,"technique":72,"finishing":79,"defending":20,"positioning":78,"pace":76,"stamina":66,"work_rate":58},
+        {"name":"A2","position":"ATT","passing":60,"technique":70,"finishing":76,"defending":18,"positioning":76,"pace":75,"stamina":67,"work_rate":57},
+        {"name":"A3","position":"ATT","passing":58,"technique":68,"finishing":73,"defending":22,"positioning":74,"pace":74,"stamina":68,"work_rate":60},
+        {"name":"D5","position":"DEF","passing":54,"technique":49,"finishing":12,"defending":73,"positioning":74,"pace":58,"stamina":69,"work_rate":68},
+        {"name":"M4","position":"MID","passing":68,"technique":63,"finishing":35,"defending":60,"positioning":68,"pace":57,"stamina":66,"work_rate":66},
+        {"name":"A4","position":"ATT","passing":55,"technique":66,"finishing":69,"defending":18,"positioning":69,"pace":72,"stamina":64,"work_rate":54}
+      ]
+    }
+  ]
+}
