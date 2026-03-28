@@ -1,80 +1,151 @@
 from __future__ import annotations
 
-from typing import Dict, List
 from tactical_manager.core.models import Player, Team
 
 
-def _avg(values: List[float]) -> float:
-    return sum(values) / len(values) if values else 0.0
+def clamp(x: float, low: float, high: float) -> float:
+    return max(low, min(high, x))
 
 
-def pick_starting_xi(team: Team) -> List[Player]:
-    players = team.available_players()
+def avg(values: list[float]) -> float:
+    if not values:
+        return 50.0
+    return sum(values) / len(values)
 
-    gks = [p for p in players if p.position == "GK"]
-    defs = [p for p in players if p.position == "DEF"]
-    mids = [p for p in players if p.position == "MID"]
-    atts = [p for p in players if p.position == "ATT"]
 
-    gks = sorted(gks, key=lambda p: p.effective("positioning") + p.effective("defending"), reverse=True)
-    defs = sorted(defs, key=lambda p: p.effective("defending") + p.effective("positioning"), reverse=True)
-    mids = sorted(mids, key=lambda p: p.effective("passing") + p.effective("technique"), reverse=True)
-    atts = sorted(atts, key=lambda p: p.effective("finishing") + p.effective("pace"), reverse=True)
+def by_position(players: list[Player], position: str) -> list[Player]:
+    return [p for p in players if p.position == position]
 
-    xi = gks[:1] + defs[:4] + mids[:3] + atts[:3]
+
+def pick_starting_xi(team: Team) -> list[Player]:
+    """
+    Simple v1 lineup selection:
+    1 GK, 4 DEF, 3 MID, 3 ATT if possible.
+    Fills remaining slots from available players if needed.
+    """
+    available = team.available_players()
+
+    gks = by_position(available, "GK")
+    defs = by_position(available, "DEF")
+    mids = by_position(available, "MID")
+    atts = by_position(available, "ATT")
+
+    xi: list[Player] = []
+
+    if gks:
+        xi.append(gks[0])
+
+    xi.extend(defs[:4])
+    xi.extend(mids[:3])
+    xi.extend(atts[:3])
+
+    used_ids = {id(p) for p in xi}
+    for player in available:
+        if len(xi) >= 11:
+            break
+        if id(player) not in used_ids:
+            xi.append(player)
+            used_ids.add(id(player))
+
     return xi[:11]
 
 
-def compute_team_profile(team: Team, xi: List[Player]) -> Dict[str, float]:
-    defs = [p for p in xi if p.position == "DEF"]
-    mids = [p for p in xi if p.position == "MID"]
-    atts = [p for p in xi if p.position == "ATT"]
+def compute_team_profile(team: Team, xi: list[Player]) -> dict[str, float]:
+    """
+    Returns the profile contract expected by match_engine.py.
+    All values are roughly on a 0..100 scale.
+    """
+    tactic = team.tactic
+
+    gks = by_position(xi, "GK")
+    defs = by_position(xi, "DEF")
+    mids = by_position(xi, "MID")
+    atts = by_position(xi, "ATT")
+
+    # Fallbacks so the engine never crashes just because a line is thin.
+    gk = gks[0] if gks else None
+
+    def eff(players: list[Player], attr: str, fallback: float = 50.0) -> float:
+        if not players:
+            return fallback
+        return avg([p.effective(attr) for p in players])
 
     build_up = (
-        0.45 * _avg([p.effective("passing") for p in defs + mids]) +
-        0.25 * _avg([p.effective("technique") for p in mids]) +
-        0.15 * team.tactic.tempo +
-        0.15 * (100 - team.tactic.directness)
+        0.35 * eff(defs + mids, "passing")
+        + 0.25 * eff(defs + mids, "technique")
+        + 0.20 * eff(defs + mids, "positioning")
+        + 0.10 * tactic.tempo
+        + 0.10 * (100.0 - abs(tactic.directness - 50.0))
+    )
+
+    pressing = (
+        0.35 * eff(defs + mids + atts, "work_rate")
+        + 0.25 * eff(defs + mids + atts, "stamina")
+        + 0.40 * tactic.pressing
     )
 
     chance_creation = (
-        0.35 * _avg([p.effective("passing") for p in mids + atts]) +
-        0.25 * _avg([p.effective("technique") for p in mids + atts]) +
-        0.20 * team.tactic.width +
-        0.20 * team.tactic.tempo
-    )
-
-    finishing = _avg([p.effective("finishing") for p in atts])
-
-    pressing = (
-        0.35 * _avg([p.effective("work_rate") for p in mids + atts]) +
-        0.25 * _avg([p.effective("stamina") for p in mids + atts]) +
-        0.20 * _avg([p.effective("pace") for p in atts]) +
-        0.20 * team.tactic.pressing
-    )
-
-    defense = (
-        0.40 * _avg([p.effective("defending") for p in defs]) +
-        0.25 * _avg([p.effective("positioning") for p in defs + mids]) +
-        0.20 * (100 - team.tactic.defensive_line) +
-        0.15 * _avg([p.effective("pace") for p in defs])
+        0.30 * eff(mids + atts, "passing")
+        + 0.30 * eff(mids + atts, "technique")
+        + 0.20 * eff(mids + atts, "positioning")
+        + 0.10 * tactic.width
+        + 0.10 * tactic.tempo
     )
 
     transition = (
-        0.40 * _avg([p.effective("pace") for p in atts]) +
-        0.25 * _avg([p.effective("finishing") for p in atts]) +
-        0.20 * team.tactic.directness +
-        0.15 * team.tactic.tempo
+        0.35 * eff(mids + atts, "pace")
+        + 0.25 * eff(mids + atts, "work_rate")
+        + 0.20 * tactic.directness
+        + 0.20 * tactic.tempo
     )
 
-    energy = 100 - _avg([p.fatigue for p in xi])
+    defense = (
+        0.45 * eff(defs + mids, "defending")
+        + 0.30 * eff(defs + mids, "positioning")
+        + 0.15 * eff(defs + mids, "stamina")
+        + 0.10 * (100.0 - abs(tactic.defensive_line - 50.0))
+    )
 
-    return {
-        "build_up": build_up,
-        "chance_creation": chance_creation,
-        "finishing": finishing,
-        "pressing": pressing,
-        "defense": defense,
-        "transition": transition,
-        "energy": energy,
+    finishing = (
+        0.55 * eff(atts + mids[:1], "finishing")
+        + 0.25 * eff(atts + mids[:1], "technique")
+        + 0.20 * eff(atts + mids[:1], "positioning")
+    )
+
+    midfield_control = (
+        0.35 * eff(mids, "passing")
+        + 0.25 * eff(mids, "technique")
+        + 0.20 * eff(mids, "positioning")
+        + 0.10 * eff(mids, "work_rate")
+        + 0.10 * tactic.tempo
+    )
+
+    compactness = (
+        0.35 * eff(defs + mids, "defending")
+        + 0.25 * eff(defs + mids, "positioning")
+        + 0.15 * eff(defs + mids, "work_rate")
+        + 0.15 * (100.0 - abs(tactic.width - 50.0))
+        + 0.10 * (100.0 - abs(tactic.defensive_line - 50.0))
+    )
+
+    # Temporary v1 GK approximation since Player has no dedicated gk stat yet.
+    goalkeeping = (
+        0.50 * (gk.effective("positioning") if gk else 40.0)
+        + 0.20 * (gk.effective("technique") if gk else 40.0)
+        + 0.20 * (gk.effective("defending") if gk else 40.0)
+        + 0.10 * (gk.effective("passing") if gk else 40.0)
+    )
+
+    profile = {
+        "build_up": clamp(build_up, 1.0, 99.0),
+        "pressing": clamp(pressing, 1.0, 99.0),
+        "chance_creation": clamp(chance_creation, 1.0, 99.0),
+        "transition": clamp(transition, 1.0, 99.0),
+        "defense": clamp(defense, 1.0, 99.0),
+        "finishing": clamp(finishing, 1.0, 99.0),
+        "midfield_control": clamp(midfield_control, 1.0, 99.0),
+        "compactness": clamp(compactness, 1.0, 99.0),
+        "goalkeeping": clamp(goalkeeping, 1.0, 99.0),
     }
+
+    return profile

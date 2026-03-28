@@ -23,3 +23,13 @@ def test_simulate_match_runs():
     assert result.away_team == "Away"
     assert result.stats.home_goals >= 0
     assert result.stats.away_goals >= 0
+
+
+def test_goals_reasonable_range():
+    home = make_team("Home")
+    away = make_team("Away")
+
+    result = simulate_match(home, away, seed=1)
+
+    assert result.stats.home_goals < 10
+    assert result.stats.away_goals < 10
