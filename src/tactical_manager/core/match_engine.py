@@ -19,7 +19,13 @@ def clamp(x: float, low: float, high: float) -> float:
     return max(low, min(high, x))
 
 
-def simulate_match(home: Team, away: Team, seed: int | None = None) -> MatchResult:
+def simulate_match(
+    home: Team,
+    away: Team,
+    seed: int | None = None,
+    home_plan: str = "balanced",
+    away_plan: str = "balanced",
+) -> MatchResult:
     """
     Minimal match engine v1.
 
@@ -49,6 +55,9 @@ def simulate_match(home: Team, away: Team, seed: int | None = None) -> MatchResu
     stats = MatchStats()
     events: list[str] = []
 
+    home_halftime_logged = False
+    away_halftime_logged = False
+
     for minute in range(0, 90, 5):
         live_hp = derive_live_profile(
             base_profile=hp,
@@ -65,6 +74,32 @@ def simulate_match(home: Team, away: Team, seed: int | None = None) -> MatchResu
             goals_against=stats.home_goals,
         )
 
+        live_hp, _ = apply_match_plan(live_hp, home_plan)
+        live_ap, _ = apply_match_plan(live_ap, away_plan)
+
+        live_hp, home_ht_event = apply_halftime_adjustment(
+            profile=live_hp,
+            team=home,
+            goals_for=stats.home_goals,
+            goals_against=stats.away_goals,
+            minute=minute,
+        )
+        live_ap, away_ht_event = apply_halftime_adjustment(
+            profile=live_ap,
+            team=away,
+            goals_for=stats.away_goals,
+            goals_against=stats.home_goals,
+            minute=minute,
+        )
+
+        if home_ht_event and not home_halftime_logged:
+            events.append(home_ht_event)
+            home_halftime_logged = True
+
+        if away_ht_event and not away_halftime_logged:
+            events.append(away_ht_event)
+            away_halftime_logged = True
+
         home_possession_share = compute_possession_share(
             home_profile=live_hp,
             away_profile=live_ap,
@@ -79,28 +114,28 @@ def simulate_match(home: Team, away: Team, seed: int | None = None) -> MatchResu
         play_possessions(
             attacking_team=home,
             defending_team=away,
-            attacking_profile=hp,
-            defending_profile=ap,
+            attacking_profile=live_hp,
+            defending_profile=live_ap,
             n_possessions=home_possessions,
             minute=minute,
             stats=stats,
             events=events,
             is_home=True,
-            xi=home_xi,  # NEW
+            xi=home_xi,
             rng=rng,
         )
 
         play_possessions(
             attacking_team=away,
             defending_team=home,
-            attacking_profile=ap,
-            defending_profile=hp,
+            attacking_profile=live_ap,
+            defending_profile=live_hp,
             n_possessions=away_possessions,
             minute=minute,
             stats=stats,
             events=events,
             is_home=False,
-            xi=home_xi,  # NEW
+            xi=away_xi,
             rng=rng,
         )
 
@@ -408,3 +443,94 @@ def derive_live_profile(
         live[key] = clamp(live[key], 1.0, 99.0)
 
     return live
+
+
+def apply_halftime_adjustment(
+    profile: Profile,
+    team: Team,
+    goals_for: int,
+    goals_against: int,
+    minute: int,
+) -> tuple[Profile, str | None]:
+    """
+    Apply a simple AI halftime tactical adjustment.
+
+    Only activates from 45' onward.
+    Returns:
+    - adjusted profile
+    - optional event text describing the tactical change
+    """
+    if minute < 45:
+        return profile, None
+
+    adjusted = dict(profile)
+    goal_diff = goals_for - goals_against
+
+    if goal_diff < 0:
+        # Trailing: push harder
+        adjusted["pressing"] += 6.0
+        adjusted["chance_creation"] += 8.0
+        adjusted["transition"] += 6.0
+        adjusted["build_up"] += 3.0
+        adjusted["defense"] -= 4.0
+        adjusted["compactness"] -= 4.0
+
+        for key in adjusted:
+            adjusted[key] = clamp(adjusted[key], 1.0, 99.0)
+
+        return adjusted, f"46' {team.name} switch to a more attacking approach"
+
+    if goal_diff > 0:
+        # Leading: become a bit more cautious
+        adjusted["pressing"] -= 2.0
+        adjusted["chance_creation"] -= 4.0
+        adjusted["transition"] -= 3.0
+        adjusted["defense"] += 5.0
+        adjusted["compactness"] += 5.0
+
+        for key in adjusted:
+            adjusted[key] = clamp(adjusted[key], 1.0, 99.0)
+
+        return adjusted, f"46' {team.name} tighten up defensively"
+
+    # Level: no major change
+    return adjusted, None
+
+def apply_match_plan(profile: Profile, plan: str) -> tuple[Profile, str | None]:
+    """
+    Apply a user- or AI-selected match approach on top of the base profile.
+
+    Plans:
+    - defensive
+    - balanced
+    - attacking
+    """
+    adjusted = dict(profile)
+
+    if plan == "defensive":
+        adjusted["pressing"] -= 3.0
+        adjusted["chance_creation"] -= 5.0
+        adjusted["transition"] -= 3.0
+        adjusted["defense"] += 6.0
+        adjusted["compactness"] += 6.0
+        adjusted["build_up"] -= 1.5
+
+        for key in adjusted:
+            adjusted[key] = clamp(adjusted[key], 1.0, 99.0)
+
+        return adjusted, "set up more defensively"
+
+    if plan == "attacking":
+        adjusted["pressing"] += 4.0
+        adjusted["chance_creation"] += 7.0
+        adjusted["transition"] += 5.0
+        adjusted["build_up"] += 2.0
+        adjusted["defense"] -= 4.0
+        adjusted["compactness"] -= 4.0
+
+        for key in adjusted:
+            adjusted[key] = clamp(adjusted[key], 1.0, 99.0)
+
+        return adjusted, "set up more aggressively"
+
+    return adjusted, None

@@ -13,13 +13,18 @@ class Season:
     current_round: int = 0
     history: list[str] = field(default_factory=list)
 
-    def play_next_fixture(self) -> Fixture | None:
+    def play_next_fixture(self, user_plan: str = "balanced"):
         for fixture in self.fixtures:
             if not fixture.played:
                 home = self.teams[fixture.home]
                 away = self.teams[fixture.away]
 
-                result = simulate_match(home, away)
+                result = simulate_match(
+                    home,
+                    away,
+                    home_plan=user_plan,
+                    away_plan="balanced",
+                )
                 apply_match_result(home, away, result)
 
                 fixture.played = True

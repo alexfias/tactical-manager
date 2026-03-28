@@ -6,7 +6,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Literal
+
+MatchPlan = Literal["defensive", "balanced", "attacking"]
 
 
 @dataclass
