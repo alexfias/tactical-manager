@@ -68,6 +68,7 @@ def simulate_match(home: Team, away: Team, seed: int | None = None) -> MatchResu
             stats=stats,
             events=events,
             is_home=True,
+            xi=home_xi,  # NEW
             rng=rng,
         )
 
@@ -81,6 +82,7 @@ def simulate_match(home: Team, away: Team, seed: int | None = None) -> MatchResu
             stats=stats,
             events=events,
             is_home=False,
+            xi=home_xi,  # NEW
             rng=rng,
         )
 
@@ -105,6 +107,7 @@ def play_possessions(
     stats: MatchStats,
     events: list[str],
     is_home: bool,
+    xi: list,  # NEW
     rng: random.Random,
 ) -> None:
     """
@@ -129,16 +132,26 @@ def play_possessions(
 
         if outcome["goal"]:
             event_minute = minute + rng.randint(1, 5)
+
             if is_home:
                 stats.home_goals += 1
             else:
                 stats.away_goals += 1
 
-            scorer = outcome.get("scorer")
-            if scorer:
-                events.append(f"{event_minute}' GOAL {attacking_team.name}: {scorer}")
+            scorer = pick_scorer(xi, rng)
+            assister = pick_assister(xi, scorer.name, rng)
+            goal_type = pick_goal_type(scorer, rng)
+
+            if assister:
+                events.append(
+                    f"{event_minute}' GOAL {attacking_team.name}: {scorer.name} "
+                    f"(assist: {assister}, {goal_type})"
+                )
             else:
-                events.append(f"{event_minute}' GOAL {attacking_team.name}")
+                events.append(
+                    f"{event_minute}' GOAL {attacking_team.name}: {scorer.name} "
+                    f"({goal_type})"
+                )
 
 
 def compute_possession_share(home_profile: Profile, away_profile: Profile) -> float:
@@ -235,3 +248,81 @@ def _event_minute_key(event: str) -> int:
         return int(event.split("'")[0])
     except (IndexError, ValueError):
         return 999
+
+def pick_scorer(xi, rng: random.Random):
+    weighted = []
+
+    for p in xi:
+        if p.position == "ATT":
+            weight = p.effective("finishing") * 1.5
+        elif p.position == "MID":
+            weight = p.effective("finishing")
+        elif p.position == "DEF":
+            weight = p.effective("finishing") * 0.3
+        else:
+            weight = 1
+
+        weight = max(1, int(weight / 10))
+        weighted.extend([p] * weight)
+
+    return rng.choice(weighted)
+
+
+def pick_assister(xi, scorer_name: str, rng: random.Random) -> str | None:
+    candidates = [p for p in xi if p.name != scorer_name]
+
+    if not candidates:
+        return None
+
+    weighted = []
+    for p in candidates:
+        weight = (
+            0.4 * p.effective("passing")
+            + 0.3 * p.effective("technique")
+            + 0.3 * p.effective("positioning")
+        )
+        weight = max(1, int(weight / 10))
+        weighted.extend([p] * weight)
+
+    assister = rng.choice(weighted).name
+
+    # Not every goal has an assist
+    if rng.random() < 0.25:
+        return None
+
+    return assister
+
+def pick_goal_type(scorer, rng: random.Random) -> str:
+    header_score = (
+        0.45 * scorer.effective("positioning")
+        + 0.30 * scorer.effective("stamina")
+        + 0.25 * scorer.effective("work_rate")
+    )
+
+    long_shot_score = (
+        0.55 * scorer.effective("technique")
+        + 0.45 * scorer.effective("finishing")
+    )
+
+    open_play_score = (
+        0.35 * scorer.effective("finishing")
+        + 0.25 * scorer.effective("positioning")
+        + 0.20 * scorer.effective("pace")
+        + 0.20 * scorer.effective("technique")
+    )
+
+    total = header_score + long_shot_score + open_play_score
+    if total <= 0:
+        return "open play"
+
+    weights = [
+        open_play_score / total,
+        header_score / total,
+        long_shot_score / total,
+    ]
+
+    return rng.choices(
+        ["open play", "header", "long shot"],
+        weights=weights,
+    )[0]
+
