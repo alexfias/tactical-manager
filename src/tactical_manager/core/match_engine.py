@@ -50,7 +50,25 @@ def simulate_match(home: Team, away: Team, seed: int | None = None) -> MatchResu
     events: list[str] = []
 
     for minute in range(0, 90, 5):
-        home_possession_share = compute_possession_share(home_profile=hp, away_profile=ap)
+        live_hp = derive_live_profile(
+            base_profile=hp,
+            team=home,
+            minute=minute,
+            goals_for=stats.home_goals,
+            goals_against=stats.away_goals,
+        )
+        live_ap = derive_live_profile(
+            base_profile=ap,
+            team=away,
+            minute=minute,
+            goals_for=stats.away_goals,
+            goals_against=stats.home_goals,
+        )
+
+        home_possession_share = compute_possession_share(
+            home_profile=live_hp,
+            away_profile=live_ap,
+        )
         total_possessions = 6
 
         home_possessions = sum(
@@ -326,3 +344,67 @@ def pick_goal_type(scorer, rng: random.Random) -> str:
         weights=weights,
     )[0]
 
+def derive_live_profile(
+    base_profile: Profile,
+    team: Team,
+    minute: int,
+    goals_for: int,
+    goals_against: int,
+) -> Profile:
+    """
+    Create a temporary in-match profile for the current 5-minute slice.
+
+    Effects included in v1:
+    - fatigue over time
+    - stronger fatigue for high pressing / high tempo teams
+    - score-state adaptation:
+        * trailing teams attack more and defend a bit less
+        * leading teams attack a bit less and defend a bit more
+    """
+    live = dict(base_profile)
+
+    intensity = (team.tactic.pressing + team.tactic.tempo) / 200.0
+    fatigue_drop = (minute / 90.0) * (0.08 + 0.12 * intensity)
+    fatigue_factor = max(0.82, 1.0 - fatigue_drop)
+
+    # General late-game drop
+    live["build_up"] *= fatigue_factor
+    live["chance_creation"] *= fatigue_factor
+    live["transition"] *= fatigue_factor
+    live["pressing"] *= fatigue_factor
+    live["midfield_control"] *= fatigue_factor
+    live["compactness"] *= fatigue_factor
+    live["defense"] *= fatigue_factor
+    live["finishing"] *= max(0.88, fatigue_factor + 0.03)
+
+    goal_diff = goals_for - goals_against
+
+    if goal_diff < 0:
+        # trailing team pushes harder
+        attack_boost = min(6.0, 2.5 * abs(goal_diff))
+        defense_penalty = min(4.0, 1.5 * abs(goal_diff))
+
+        live["chance_creation"] += attack_boost
+        live["transition"] += attack_boost * 0.8
+        live["build_up"] += attack_boost * 0.4
+        live["pressing"] += attack_boost * 0.5
+
+        live["defense"] -= defense_penalty
+        live["compactness"] -= defense_penalty
+
+    elif goal_diff > 0:
+        # leading team becomes a bit more conservative
+        attack_penalty = min(4.0, 1.5 * goal_diff)
+        defense_boost = min(5.0, 2.0 * goal_diff)
+
+        live["chance_creation"] -= attack_penalty
+        live["transition"] -= attack_penalty * 0.5
+
+        live["defense"] += defense_boost
+        live["compactness"] += defense_boost
+        live["build_up"] -= attack_penalty * 0.3
+
+    for key in live:
+        live[key] = clamp(live[key], 1.0, 99.0)
+
+    return live
