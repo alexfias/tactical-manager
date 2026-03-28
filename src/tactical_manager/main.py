@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from tactical_manager.core.season import Season, create_double_round_robin
-from tactical_manager.io.loaders import load_teams_from_json
+from tactical_manager.ui.loaders import load_teams_from_json
 from tactical_manager.ui.cli import run_cli
 
 
