@@ -1,18 +1,40 @@
 from __future__ import annotations
 
 from pathlib import Path
-from tactical_manager.core.season import Season, create_double_round_robin
-from tactical_manager.ui.loaders import load_teams_from_json
+from tactical_manager.core.data import create_demo_teams, create_round_robin_fixtures
+from tactical_manager.core.season import Season
 from tactical_manager.ui.cli import run_cli
 
 
-def main() -> None:
-    root = Path(__file__).resolve().parents[2]
-    data_file = root / "data" / "teams" / "fictional_league.json"
+def choose_user_team(teams: dict) -> str:
+    team_names = list(teams.keys())
 
-    teams = load_teams_from_json(data_file)
-    fixtures = create_double_round_robin(list(teams.keys()))
-    season = Season(teams=teams, fixtures=fixtures)
+    print("Choose your team:")
+    for i, name in enumerate(team_names, start=1):
+        print(f"{i}. {name}")
+
+    while True:
+        choice = input("> ").strip()
+
+        if choice.isdigit():
+            idx = int(choice) - 1
+            if 0 <= idx < len(team_names):
+                return team_names[idx]
+
+        print("Invalid choice. Please enter a valid number.")
+
+
+def main() -> None:
+    teams = create_demo_teams()
+    fixtures = create_round_robin_fixtures(list(teams.keys()))
+
+    user_team = choose_user_team(teams)
+
+    season = Season(
+        teams=teams,
+        fixtures=fixtures,
+        user_team=user_team,
+    )
 
     run_cli(season)
 

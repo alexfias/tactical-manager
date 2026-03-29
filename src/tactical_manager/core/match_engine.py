@@ -12,11 +12,13 @@ from tactical_manager.core.match_logic import (
     Profile,
     apply_halftime_adjustment,
     apply_match_plan,
+    apply_team_tactic_to_profile,
     compute_possession_share,
     derive_live_profile,
     simulate_possession,
     validate_profile,
 )
+
 from tactical_manager.core.models import MatchResult, MatchStats, Team
 from tactical_manager.core.tactics import compute_team_profile, pick_starting_xi
 
@@ -40,6 +42,9 @@ def simulate_match(
 
     hp = compute_team_profile(home, home_xi)
     ap = compute_team_profile(away, away_xi)
+
+    hp = apply_team_tactic_to_profile(hp, home)
+    ap = apply_team_tactic_to_profile(ap, away)
 
     validate_profile(hp, team_name=home.name)
     validate_profile(ap, team_name=away.name)

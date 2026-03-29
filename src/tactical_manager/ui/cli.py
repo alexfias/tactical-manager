@@ -26,22 +26,17 @@ def choose_tactic() -> Tactic:
     print("3. Attacking")
     m = input("> ").strip()
 
-    mentality_map = {
-        "1": 35.0,
-        "2": 50.0,
-        "3": 70.0,
-    }
-
+    mentality_map = {"1": 35.0, "2": 50.0, "3": 70.0}
     mentality = mentality_map.get(m, 50.0)
 
     return Tactic(
         formation="4-4-2",
         mentality=mentality,
-        pressing=55.0 if mentality > 50 else 45.0,
-        tempo=55.0 if mentality > 50 else 45.0,
+        pressing=50.0,
+        tempo=50.0,
         width=50.0,
         directness=50.0,
-        defensive_line=55.0 if mentality > 50 else 45.0,
+        defensive_line=50.0,
     )
 
 def run_cli(season: Season) -> None:
@@ -59,7 +54,7 @@ def run_cli(season: Season) -> None:
         if choice == "1":
             plan = ask_match_plan()
             tactic = choose_tactic()
-            fixture = season.play_next_fixture(user_plan=plan)
+            fixture = season.play_next_fixture(user_plan=plan, user_tactic=tactic)
 
             if fixture is None:
                 print("Season finished.")

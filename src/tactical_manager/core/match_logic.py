@@ -231,3 +231,32 @@ def apply_match_plan(profile: Profile, plan: str) -> tuple[Profile, str | None]:
         return adjusted, "set up more aggressively"
 
     return adjusted, None
+
+
+def apply_team_tactic_to_profile(profile: Profile, team: Team) -> Profile:
+    adjusted = dict(profile)
+    tactic = team.tactic
+
+    adjusted["pressing"] += 0.20 * (tactic.pressing - 50.0)
+    adjusted["build_up"] += 0.10 * (tactic.tempo - 50.0)
+    adjusted["transition"] += 0.18 * (tactic.tempo - 50.0)
+
+    adjusted["chance_creation"] += 0.20 * (tactic.mentality - 50.0)
+    adjusted["defense"] -= 0.12 * (tactic.mentality - 50.0)
+    adjusted["compactness"] -= 0.10 * (tactic.mentality - 50.0)
+
+    adjusted["build_up"] += 0.10 * (tactic.width - 50.0)
+    adjusted["chance_creation"] += 0.08 * (tactic.width - 50.0)
+    adjusted["compactness"] -= 0.08 * (tactic.width - 50.0)
+
+    adjusted["transition"] += 0.15 * (tactic.directness - 50.0)
+    adjusted["build_up"] -= 0.08 * (tactic.directness - 50.0)
+
+    adjusted["pressing"] += 0.10 * (tactic.defensive_line - 50.0)
+    adjusted["defense"] += 0.08 * (tactic.defensive_line - 50.0)
+    adjusted["compactness"] -= 0.05 * (tactic.defensive_line - 50.0)
+
+    for key in adjusted:
+        adjusted[key] = clamp(adjusted[key], 1.0, 99.0)
+
+    return adjusted
