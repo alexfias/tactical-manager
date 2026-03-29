@@ -3,7 +3,7 @@ from __future__ import annotations
 from tactical_manager.core.season import Season
 from tactical_manager.ui.render import render_match, render_table
 from tactical_manager.core.models import Tactic
-
+from tactical_manager.ui.render import render_squad
 
 def ask_match_plan() -> str:
     print()
@@ -48,7 +48,8 @@ def run_cli(season: Season) -> None:
         print("1. Play next fixture")
         print("2. Show table")
         print("3. Show history")
-        print("4. Quit")
+        print("4. Team management")
+        print("5. Quit")
         choice = input("> ").strip()
 
         if choice == "1":
@@ -80,8 +81,33 @@ def run_cli(season: Season) -> None:
             print()
 
         elif choice == "4":
+            run_team_management(season)
+
+        elif choice == "5":
             break
 
         else:
             print("Invalid choice.")
             print()
+
+
+def run_team_management(season: Season) -> None:
+    while True:
+        print()
+        print(f"=== Team Management: {season.user_team} ===")
+        print("1. View full squad")
+        print("2. Back")
+        subchoice = input("> ").strip()
+
+        team = season.teams[season.user_team]
+
+        if subchoice == "1":
+            print()
+            print(render_squad(team.squad))
+
+        elif subchoice == "2":
+            print()
+            break
+
+        else:
+            print("Invalid choice.")

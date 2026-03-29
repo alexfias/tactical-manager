@@ -27,3 +27,24 @@ def render_match(result: MatchResult) -> str:
     else:
         lines.append("  No major events recorded.")
     return "\n".join(lines)
+
+def render_squad(players: list) -> str:
+    if not players:
+        return "No players to show."
+
+    lines = []
+    lines.append(
+        f"{'Name':<12} {'Pos':<5} {'Fit':>5} {'Fat':>5} {'Mor':>5} {'Fam':>5} {'Inj':>5}"
+    )
+    lines.append("-" * 50)
+
+    for p in players:
+        inj = "X" if p.injured else ""
+
+        lines.append(
+            f"{p.name:<12} {p.position:<5} "
+            f"{p.fitness:>5.1f} {p.fatigue:>5.1f} "
+            f"{p.morale:>5.1f} {p.familiarity:>5.1f} "
+            f"{inj:>5}"
+        )
+    return "\n".join(lines)
