@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from tactical_manager.core.models import Player, Team
 
-
 def clamp(x: float, low: float, high: float) -> float:
     return max(low, min(high, x))
 

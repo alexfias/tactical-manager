@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from tactical_manager.core.season import Season
 from tactical_manager.ui.render import render_match, render_table
+from tactical_manager.core.models import Tactic
 
 
 def ask_match_plan() -> str:
@@ -18,6 +19,30 @@ def ask_match_plan() -> str:
         return "attacking"
     return "balanced"
 
+def choose_tactic() -> Tactic:
+    print("Choose mentality:")
+    print("1. Defensive")
+    print("2. Balanced")
+    print("3. Attacking")
+    m = input("> ").strip()
+
+    mentality_map = {
+        "1": 35.0,
+        "2": 50.0,
+        "3": 70.0,
+    }
+
+    mentality = mentality_map.get(m, 50.0)
+
+    return Tactic(
+        formation="4-4-2",
+        mentality=mentality,
+        pressing=55.0 if mentality > 50 else 45.0,
+        tempo=55.0 if mentality > 50 else 45.0,
+        width=50.0,
+        directness=50.0,
+        defensive_line=55.0 if mentality > 50 else 45.0,
+    )
 
 def run_cli(season: Season) -> None:
     print("=== Tactical Manager ===")
@@ -33,6 +58,7 @@ def run_cli(season: Season) -> None:
 
         if choice == "1":
             plan = ask_match_plan()
+            tactic = choose_tactic()
             fixture = season.play_next_fixture(user_plan=plan)
 
             if fixture is None:

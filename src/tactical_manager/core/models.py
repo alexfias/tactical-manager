@@ -48,11 +48,14 @@ class Player:
 
 @dataclass
 class Tactic:
-    pressing: float = 50.0
-    defensive_line: float = 50.0
-    width: float = 50.0
-    directness: float = 50.0
-    tempo: float = 50.0
+    formation: str = "4-4-2"
+
+    mentality: float = 50.0      # attacking vs defensive
+    pressing: float = 50.0       # pressing intensity
+    tempo: float = 50.0          # speed of play
+    width: float = 50.0          # wide vs narrow
+    directness: float = 50.0     # long balls vs short passing
+    defensive_line: float = 50.0 # deep vs high line
 
 
 @dataclass
