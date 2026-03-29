@@ -1,0 +1,23 @@
+{
+  "name": "Blue FC",
+  "squad": [
+    {
+      "name": "R. Keeper",
+      "position": "GK",
+      "passing": 45,
+      "technique": 50,
+      "finishing": 5,
+      "defending": 60,
+      "positioning": 72,
+      "pace": 30,
+      "stamina": 58,
+      "work_rate": 50,
+      "fatigue": 10.0,
+      "fitness": 95.0,
+      "morale": 70.0,
+      "familiarity": 50.0,
+      "injury_proneness": 20.0,
+      "injured": false
+    }
+  ]
+}

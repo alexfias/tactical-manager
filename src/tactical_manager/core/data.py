@@ -1,7 +1,11 @@
 # src/tactical_manager/core/data.py
 
-from tactical_manager.core.models import Team, Player, Fixture
+from __future__ import annotations
 
+import json
+from pathlib import Path
+
+from tactical_manager.core.models import Team, Player, Fixture
 
 def create_demo_teams() -> dict[str, Team]:
     def make_team(name: str) -> Team:
@@ -31,3 +35,23 @@ def create_round_robin_fixtures(team_names: list[str]) -> list[Fixture]:
             fixtures.append(Fixture(home=home, away=away))
 
     return fixtures
+
+
+
+def load_team_from_file(path: Path) -> Team:
+    with path.open("r", encoding="utf-8") as f:
+        raw = json.load(f)
+
+    squad = [Player(**player_data) for player_data in raw["squad"]]
+    return Team(name=raw["name"], squad=squad)
+
+
+def load_teams_from_folder(folder: Path) -> dict[str, Team]:
+    teams: dict[str, Team] = {}
+
+    for path in sorted(folder.glob("*.json")):
+        print(f"Loading team file: {path}")
+        team = load_team_from_file(path)
+        teams[team.name] = team
+
+    return teams

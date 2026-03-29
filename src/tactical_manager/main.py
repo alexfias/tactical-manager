@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from tactical_manager.core.data import create_demo_teams, create_round_robin_fixtures
+from tactical_manager.core.data import create_demo_teams, create_round_robin_fixtures, load_teams_from_folder
 from tactical_manager.core.season import Season
 from tactical_manager.ui.cli import run_cli
 
@@ -25,7 +25,10 @@ def choose_user_team(teams: dict) -> str:
 
 
 def main() -> None:
-    teams = create_demo_teams()
+    #teams = create_demo_teams()
+    teams = load_teams_from_folder(Path("data/teams"))
+    print("Loaded teams:", list(teams.keys()))
+
     fixtures = create_round_robin_fixtures(list(teams.keys()))
 
     user_team = choose_user_team(teams)
