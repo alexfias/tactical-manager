@@ -94,12 +94,13 @@ def run_cli(season: Season) -> None:
 def run_team_management(season: Season) -> None:
     while True:
         print()
-        print(f"=== Team Management: {season.user_team} ===")
+        print(f"=== Team Management: {season.user_club} ===")
         print("1. View full squad")
         print("2. Back")
         subchoice = input("> ").strip()
 
-        team = season.teams[season.user_team]
+        club = season.clubs[season.user_club]
+        team = club.team
 
         if subchoice == "1":
             print()

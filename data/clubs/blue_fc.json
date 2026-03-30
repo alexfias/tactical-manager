@@ -1,0 +1,53 @@
+{
+  "name": "Blue FC",
+  "reputation": 55.0,
+  "finance": {
+    "balance": 1000000,
+    "transfer_budget": 250000,
+    "weekly_wages": 0,
+    "wage_budget": 100000,
+    "sponsorship_income": 50000,
+    "matchday_base_income": 20000
+  },
+  "infrastructure": {
+    "stadium_capacity": 12000,
+    "ticket_price": 20,
+    "training_level": 50,
+    "youth_level": 50
+  },
+  "support": {
+    "fan_confidence": 50.0,
+    "fan_base": 10000
+  },
+  "board": {
+    "target_finish": 6,
+    "max_wage_ratio": 0.7,
+    "philosophy": "balanced"
+  },
+  "team": {
+    "name": "Red FC",
+    "tactic": {
+      "shape": "4-4-2",
+      "pressing": 50,
+      "tempo": 50,
+      "width": 50
+    },
+    "squad": [
+      {
+        "name": "Red Keeper",
+        "position": "GK",
+        "attack": 20,
+        "defense": 70,
+        "passing": 40,
+        "stamina": 55,
+        "morale": 60,
+        "form": 60,
+        "wage": 5000,
+        "market_value": 200000,
+        "age": 28,
+        "contract_weeks": 104,
+        "potential": 55
+      }
+    ]
+  }
+}

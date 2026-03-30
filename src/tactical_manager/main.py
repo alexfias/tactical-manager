@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 from pathlib import Path
-from tactical_manager.core.data import create_demo_teams, create_round_robin_fixtures, load_teams_from_folder
+
+from tactical_manager.core.data import create_round_robin_fixtures, load_clubs_from_folder
 from tactical_manager.core.season import Season
 from tactical_manager.ui.cli import run_cli
 
 
-def choose_user_team(teams: dict) -> str:
-    team_names = list(teams.keys())
+def choose_user_club(clubs: dict) -> str:
+    club_names = list(clubs.keys())
 
-    print("Choose your team:")
-    for i, name in enumerate(team_names, start=1):
+    print("Choose your club:")
+    for i, name in enumerate(club_names, start=1):
         print(f"{i}. {name}")
 
     while True:
@@ -18,25 +19,23 @@ def choose_user_team(teams: dict) -> str:
 
         if choice.isdigit():
             idx = int(choice) - 1
-            if 0 <= idx < len(team_names):
-                return team_names[idx]
+            if 0 <= idx < len(club_names):
+                return club_names[idx]
 
         print("Invalid choice. Please enter a valid number.")
 
 
 def main() -> None:
-    #teams = create_demo_teams()
-    teams = load_teams_from_folder(Path("data/teams"))
-    print("Loaded teams:", list(teams.keys()))
+    clubs = load_clubs_from_folder(Path("data/clubs"))
+    print("Loaded clubs:", list(clubs.keys()))
 
-    fixtures = create_round_robin_fixtures(list(teams.keys()))
-
-    user_team = choose_user_team(teams)
+    fixtures = create_round_robin_fixtures(list(clubs.keys()))
+    user_club = choose_user_club(clubs)
 
     season = Season(
-        teams=teams,
+        clubs=clubs,
         fixtures=fixtures,
-        user_team=user_team,
+        user_club=user_club,
     )
 
     run_cli(season)
