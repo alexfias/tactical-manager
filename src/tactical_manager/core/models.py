@@ -99,3 +99,47 @@ class Fixture:
     away: str
     played: bool = False
     result: Optional[MatchResult] = None
+
+@dataclass
+class Club:
+    identity: ClubIdentity
+    team: Team
+    finance: ClubFinance
+    infrastructure: ClubInfrastructure
+    support: ClubSupport
+    board: BoardExpectations
+
+@dataclass
+class ClubIdentity:
+    name: str
+    city: str = ""
+    founded: int | None = None
+    club_size: str = "medium"   # small / medium / big
+    reputation: float = 50.0
+
+@dataclass
+class ClubFinance:
+    balance: int = 0
+    transfer_budget: int = 0
+    weekly_wages: int = 0
+    wage_budget: int = 0
+    sponsorship_income: int = 0
+    matchday_base_income: int = 0
+
+@dataclass
+class ClubInfrastructure:
+    stadium_capacity: int = 10000
+    ticket_price: int = 20
+    training_level: int = 50
+    youth_level: int = 50
+
+@dataclass
+class ClubSupport:
+    fan_confidence: float = 50.0
+    fan_base: int = 10000
+
+@dataclass
+class BoardExpectations:
+    target_finish: int = 6
+    max_wage_ratio: float = 0.7
+    philosophy: str = "balanced"   # balanced / youth / ambitious / selling_club
