@@ -48,3 +48,42 @@ def render_squad(players: list) -> str:
             f"{inj:>5}"
         )
     return "\n".join(lines)
+
+
+from tactical_manager.core.models import Club
+
+
+def render_club_overview(club: Club) -> str:
+    lines = [
+        f"=== {club.identity.name} ===",
+        f"City: {club.identity.city or '-'}",
+        f"Founded: {club.identity.founded if club.identity.founded is not None else '-'}",
+        f"Club size: {club.identity.club_size}",
+        f"Reputation: {club.identity.reputation:.1f}",
+        "",
+        "Finances",
+        f"  Balance: €{club.finance.balance:,}",
+        f"  Transfer budget: €{club.finance.transfer_budget:,}",
+        f"  Weekly wages: €{club.finance.weekly_wages:,}",
+        f"  Wage budget: €{club.finance.wage_budget:,}",
+        f"  Sponsorship income: €{club.finance.sponsorship_income:,}",
+        f"  Matchday base income: €{club.finance.matchday_base_income:,}",
+        "",
+        "Infrastructure",
+        f"  Stadium capacity: {club.infrastructure.stadium_capacity:,}",
+        f"  Ticket price: €{club.infrastructure.ticket_price}",
+        f"  Training level: {club.infrastructure.training_level}",
+        f"  Youth level: {club.infrastructure.youth_level}",
+        "",
+        "Support",
+        f"  Fan confidence: {club.support.fan_confidence:.1f}",
+        f"  Fan base: {club.support.fan_base:,}",
+        "",
+        "Board",
+        f"  Target finish: {club.board.target_finish}",
+        f"  Max wage ratio: {club.board.max_wage_ratio:.2f}",
+        f"  Philosophy: {club.board.philosophy}",
+        "",
+        f"Squad size: {len(club.team.squad)}",
+    ]
+    return "\n".join(lines)

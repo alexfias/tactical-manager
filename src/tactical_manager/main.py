@@ -23,7 +23,9 @@ def choose_user_club(clubs: dict) -> str:
                 return club_names[idx]
 
         print("Invalid choice. Please enter a valid number.")
-
+    print()
+    print(render_club_overview(user_club))
+    print()
 
 def main() -> None:
     clubs = load_clubs_from_folder(Path("data/clubs"))

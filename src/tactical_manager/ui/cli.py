@@ -47,9 +47,10 @@ def run_cli(season: Season) -> None:
         print("Choose an option:")
         print("1. Play next fixture")
         print("2. Show table")
-        print("3. Show history")
-        print("4. Team management")
-        print("5. Quit")
+        print("3. Show club overview")
+        print("4. Show history")
+        print("5. Team management")
+        print("6. Quit")
         choice = input("> ").strip()
 
         if choice == "1":
@@ -73,6 +74,11 @@ def run_cli(season: Season) -> None:
 
         elif choice == "3":
             print()
+            print(render_club_overview(season.user_club))
+            print()
+
+        elif choice == "4":
+            print()
             if season.history:
                 for line in season.history:
                     print(line)
@@ -80,10 +86,10 @@ def run_cli(season: Season) -> None:
                 print("No matches played yet.")
             print()
 
-        elif choice == "4":
+        elif choice == "5":
             run_team_management(season)
 
-        elif choice == "5":
+        elif choice == "6":
             break
 
         else:
