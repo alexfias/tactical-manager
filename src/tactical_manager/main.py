@@ -10,7 +10,7 @@ from tactical_manager.core.data import (
 )
 from tactical_manager.core.season import Season
 from tactical_manager.ui.cli import run_cli
-from tactical_manager.ui.gui_qt import run_gui
+from tactical_manager.ui.gui.app import run_gui
 
 
 def choose_interface() -> str:

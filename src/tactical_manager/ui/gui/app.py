@@ -3,7 +3,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QApplication, QSplashScreen
 
 from tactical_manager.core.season import Season
-from tactical_manager.ui.main_window import GameWindow
+from tactical_manager.ui.gui.main_window import GameWindow
 
 
 def run_gui(season: Season) -> None:

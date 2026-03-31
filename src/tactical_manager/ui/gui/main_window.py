@@ -11,9 +11,9 @@ from PySide6.QtWidgets import (
 
 from tactical_manager.core.models import Tactic
 from tactical_manager.core.season import Season
-from tactical_manager.ui.dialogs import MatchSetupDialog
+from tactical_manager.ui.gui.dialogs import MatchSetupDialog
 from tactical_manager.ui.render import render_match, render_table
-from tactical_manager.ui.styles import main_stylesheet
+from tactical_manager.ui.gui.styles import main_stylesheet
 
 
 class GameWindow(QWidget):
