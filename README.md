@@ -65,3 +65,16 @@ frequent changes and breaking updates.
 
 Built as an experiment in designing a football manager where **decisions
 truly matter**.
+
+
+## v0.1.0 — First Playable Version
+
+- GUI and CLI interface
+- Match simulation engine
+- Tactical decisions influence outcomes
+- League table and match history tracking
+
+Next:
+- Improved UI layout
+- Squad management
+- Match visualization
