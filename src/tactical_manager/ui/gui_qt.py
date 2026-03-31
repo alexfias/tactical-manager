@@ -84,6 +84,18 @@ class GameWindow(QWidget):
         self.table_button = QPushButton("Show Table")
         self.table_button.clicked.connect(self.show_table)
 
+        self.club_button = QPushButton("Club Overview")
+        self.club_button.clicked.connect(self.show_club_overview)
+
+        self.history_button = QPushButton("Show History")
+        self.history_button.clicked.connect(self.show_history)
+
+        self.team_button = QPushButton("Team Management")
+        self.team_button.clicked.connect(self.show_team_management)
+
+        self.quit_button = QPushButton("Quit")
+        self.quit_button.clicked.connect(self.close)
+
         # Output
         self.output = QTextEdit()
         self.output.setReadOnly(True)
@@ -92,8 +104,11 @@ class GameWindow(QWidget):
         panel_layout.addWidget(self.title)
         panel_layout.addWidget(self.play_button)
         panel_layout.addWidget(self.table_button)
+        panel_layout.addWidget(self.club_button)
+        panel_layout.addWidget(self.history_button)
+        panel_layout.addWidget(self.team_button)
+        panel_layout.addWidget(self.quit_button)
         panel_layout.addWidget(self.output)
-
         # Add panel to main layout
         self.layout.addWidget(panel)
         self.setLayout(self.layout)
@@ -179,6 +194,63 @@ class GameWindow(QWidget):
         self.output.append(render_table(table))
         self.output.append("")
 
+    def show_club_overview(self):
+        club = self.season.clubs[self.season.user_club]
+
+        lines = [
+            f"Club: {club.identity.name}",
+            f"Country: {club.country}",
+            f"Reputation: {club.identity.reputation}",
+            "",
+            "Finance",
+            f"Balance: {club.finance.balance}",
+            f"Transfer budget: {club.finance.transfer_budget}",
+            f"Weekly wages: {club.finance.weekly_wages}",
+            f"Wage budget: {club.finance.wage_budget}",
+            "",
+            "Infrastructure",
+            f"Stadium capacity: {club.infrastructure.stadium_capacity}",
+            f"Ticket price: {club.infrastructure.ticket_price}",
+            f"Training level: {club.infrastructure.training_level}",
+            f"Youth level: {club.infrastructure.youth_level}",
+            "",
+            "Support",
+            f"Fan confidence: {club.support.fan_confidence}",
+            f"Fan base: {club.support.fan_base}",
+            "",
+            "Board",
+            f"Target finish: {club.board.target_finish}",
+            f"Max wage ratio: {club.board.max_wage_ratio}",
+            f"Philosophy: {club.board.philosophy}",
+        ]
+
+        self.output.clear()
+        self.output.setPlainText("\n".join(str(x) for x in lines))
+
+    def show_history(self):
+        self.output.clear()
+        if not self.season.history:
+            self.output.setPlainText("No matches played yet.")
+            return
+
+        self.output.setPlainText("\n".join(self.season.history))
+
+    def show_team_management(self):
+        club = self.season.clubs[self.season.user_club]
+        team = club.team
+
+        lines = [f"Team: {team.name}", "", "Squad"]
+
+        for player in team.squad:
+            starter_mark = "*" if player in team.starting_xi else " "
+            lines.append(
+                f"{starter_mark} {player.name} | {player.position} | "
+                f"Morale {player.morale:.0f} | Fitness {player.fitness:.0f} | Fatigue {player.fatigue:.0f}"
+            )
+
+        self.output.clear()
+        self.output.setPlainText("\n".join(lines))
+
 
 def run_gui(season: Season):
     app = QApplication([])
@@ -204,3 +276,5 @@ def run_gui(season: Season):
     QTimer.singleShot(2000, start_main_window)
 
     app.exec()
+
+
