@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush, QFont, QPalette, QPixmap
 from PySide6.QtWidgets import (
+    QDialog,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -12,8 +13,9 @@ from PySide6.QtWidgets import (
 from tactical_manager.core.models import Tactic
 from tactical_manager.core.season import Season
 from tactical_manager.ui.gui.dialogs import MatchSetupDialog
-from tactical_manager.ui.render import render_match, render_table
 from tactical_manager.ui.gui.styles import main_stylesheet
+from tactical_manager.ui.gui.widgets.match_result_widget import MatchResultWidget
+from tactical_manager.ui.render import render_table
 
 
 class GameWindow(QWidget):
@@ -96,10 +98,14 @@ class GameWindow(QWidget):
         self.section_title.setObjectName("sectionTitle")
         self.section_title.setFont(QFont("Arial", 18, QFont.Bold))
 
+        self.match_result_widget = MatchResultWidget()
+        self.match_result_widget.hide()
+
         self.output = QTextEdit()
         self.output.setReadOnly(True)
 
         content_layout.addWidget(self.section_title)
+        content_layout.addWidget(self.match_result_widget)
         content_layout.addWidget(self.output)
 
         body_layout.addWidget(menu_panel)
@@ -119,15 +125,52 @@ class GameWindow(QWidget):
             button.style().polish(button)
             button.update()
 
-    def set_content(self, title: str, text: str) -> None:
+    def set_text_content(self, title: str, text: str) -> None:
         self.section_title.setText(title)
+        self.match_result_widget.hide()
+        self.output.show()
         self.output.setPlainText(text)
+
+    def set_match_content(self, fixture) -> None:
+        self.section_title.setText("Match Result")
+        self.output.hide()
+        self.match_result_widget.show()
+
+        result = fixture.result
+        stats = result.stats
+
+        home_goals = stats.home_goals
+        away_goals = stats.away_goals
+
+        home_shots = getattr(stats, "home_shots", home_goals * 3 + 5)
+        away_shots = getattr(stats, "away_shots", away_goals * 3 + 5)
+
+        home_possession = getattr(stats, "home_possession", 50)
+        away_possession = getattr(stats, "away_possession", 100 - home_possession)
+
+        home_big_chances = getattr(stats, "home_big_chances", max(1, home_goals))
+        away_big_chances = getattr(stats, "away_big_chances", max(1, away_goals))
+
+        extra_stats = [
+            ("Goals", str(home_goals), str(away_goals)),
+            ("Shots", str(home_shots), str(away_shots)),
+            ("Possession", f"{home_possession}%", f"{away_possession}%"),
+            ("Big chances", str(home_big_chances), str(away_big_chances)),
+        ]
+
+        self.match_result_widget.set_result(
+            home_name=fixture.home,
+            away_name=fixture.away,
+            home_goals=home_goals,
+            away_goals=away_goals,
+            extra_stats=extra_stats,
+        )
 
     def play_match(self) -> None:
         self.set_active_button(self.play_button)
 
         dialog = MatchSetupDialog(self)
-        if dialog.exec() != MatchSetupDialog.Accepted:
+        if dialog.exec() != QDialog.Accepted:
             return
 
         plan, mentality = dialog.get_values()
@@ -157,15 +200,15 @@ class GameWindow(QWidget):
         )
 
         if fixture is None:
-            self.set_content("Match", "Season finished.")
+            self.set_text_content("Match", "Season finished.")
             return
 
-        self.set_content("Match Result", render_match(fixture.result))
+        self.set_match_content(fixture)
 
     def show_table(self) -> None:
         self.set_active_button(self.table_button)
         table = self.season.get_table()
-        self.set_content("League Table", render_table(table))
+        self.set_text_content("League Table", render_table(table))
 
     def show_club_overview(self) -> None:
         self.set_active_button(self.club_button)
@@ -200,16 +243,16 @@ class GameWindow(QWidget):
             f"Philosophy: {club.board.philosophy}",
         ]
 
-        self.set_content("Club Overview", "\n".join(str(x) for x in lines))
+        self.set_text_content("Club Overview", "\n".join(str(x) for x in lines))
 
     def show_history(self) -> None:
         self.set_active_button(self.history_button)
 
         if not self.season.history:
-            self.set_content("History", "No matches played yet.")
+            self.set_text_content("History", "No matches played yet.")
             return
 
-        self.set_content("History", "\n".join(self.season.history))
+        self.set_text_content("History", "\n".join(self.season.history))
 
     def show_team_management(self) -> None:
         self.set_active_button(self.team_button)
@@ -232,4 +275,4 @@ class GameWindow(QWidget):
                 f"Morale {player.morale:.0f} | Fitness {player.fitness:.0f} | Fatigue {player.fatigue:.0f}"
             )
 
-        self.set_content("Team Management", "\n".join(lines))
+        self.set_text_content("Team Management", "\n".join(lines))

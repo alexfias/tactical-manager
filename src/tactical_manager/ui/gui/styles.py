@@ -28,6 +28,40 @@ def main_stylesheet() -> str:
             padding: 8px 10px;
         }
 
+        #matchResultCard {
+            background-color: rgba(8, 8, 8, 205);
+            border: 1px solid rgba(255, 255, 255, 30);
+            border-radius: 14px;
+        }
+
+        #matchStatus {
+            color: rgba(255, 255, 255, 180);
+            font-size: 13px;
+            padding: 4px;
+        }
+
+        #teamName {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 8px;
+        }
+
+        #scoreLine {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 8px;
+        }
+
+        #summaryTitle {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding-top: 10px;
+            padding-bottom: 4px;
+        }
+
         QPushButton {
             background-color: rgba(18, 18, 18, 210);
             color: white;
@@ -77,5 +111,18 @@ def main_stylesheet() -> str:
         QDialog {
             background-color: #1e1e1e;
             color: white;
+        }
+        
+        #statLabel {
+            color: rgba(255, 255, 255, 180);
+            font-size: 13px;
+            padding: 4px;
+        }
+        
+        #statValue {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 4px;
         }
     """
