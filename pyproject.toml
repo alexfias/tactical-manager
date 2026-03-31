@@ -21,3 +21,4 @@ where = ["src"]
 
 [project.scripts]
 tactical-manager = "tactical_manager.main:main"
+tactical-manager-editor = "tactical_manager.editor.editor_main:main"
