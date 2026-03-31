@@ -202,3 +202,69 @@ def load_competitions_from_folder(folder: Path) -> list[Competition]:
     for path in sorted(folder.glob("*.json")):
         competitions.append(load_competition_from_file(path))
     return competitions
+
+
+
+def load_club(path: Path) -> Club:
+    with path.open("r", encoding="utf-8") as f:
+        raw = json.load(f)
+
+    return parse_club(raw)
+
+
+def club_to_dict(club: Club) -> dict:
+    return {
+        "name": club.identity.name,
+        "reputation": club.identity.reputation,
+        "team": {
+            "name": club.team.name,
+            "squad": [
+                {
+                    "name": p.name,
+                    "position": p.position,
+                    "attack": p.attack,
+                    "defense": p.defense,
+                    "passing": p.passing,
+                    "stamina": p.stamina,
+                    "morale": p.morale,
+                    "form": p.form,
+                    "wage": p.wage,
+                    "market_value": p.market_value,
+                    "age": p.age,
+                    "contract_weeks": p.contract_weeks,
+                    "potential": p.potential,
+                }
+                for p in club.team.squad
+            ],
+        },
+        "finance": {
+            "balance": club.finance.balance,
+            "transfer_budget": club.finance.transfer_budget,
+            "weekly_wages": club.finance.weekly_wages,
+            "wage_budget": club.finance.wage_budget,
+            "sponsorship_income": club.finance.sponsorship_income,
+            "matchday_base_income": club.finance.matchday_base_income,
+        },
+        "infrastructure": {
+            "stadium_capacity": club.infrastructure.stadium_capacity,
+            "ticket_price": club.infrastructure.ticket_price,
+            "training_level": club.infrastructure.training_level,
+            "youth_level": club.infrastructure.youth_level,
+            "medical_level": club.infrastructure.medical_level,
+        },
+        "support": {
+            "fan_mood": club.support.fan_mood,
+            "expectation": club.support.expectation,
+        },
+        "board": {
+            "patience": club.board.patience,
+            "confidence": club.board.confidence,
+        },
+    }
+
+
+def save_club(club: Club, path: Path) -> None:
+    data = club_to_dict(club)
+
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)

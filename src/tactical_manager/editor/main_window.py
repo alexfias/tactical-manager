@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from tactical_manager.core.data import parse_club
+from tactical_manager.core.data import load_club, save_club
 from tactical_manager.core.models import Club, Player
 from tactical_manager.editor.state import EditorState
 from tactical_manager.editor.validators import validate_club
@@ -137,9 +137,7 @@ class ClubEditorWindow(QMainWindow):
 
     def load_club_file(self, path: Path) -> None:
         try:
-            with path.open("r", encoding="utf-8") as f:
-                raw = json.load(f)
-            club = parse_club(raw)
+            club = load_club(path)
         except Exception as exc:
             QMessageBox.critical(self, "Load Error", f"Could not load club file:\n{path}\n\n{exc}")
             return
@@ -280,9 +278,7 @@ class ClubEditorWindow(QMainWindow):
             return
 
         try:
-            payload = self.club_to_dict(club)
-            with path.open("w", encoding="utf-8") as f:
-                json.dump(payload, f, indent=2)
+            save_club(club, path)
             self.state.dirty = False
             self.status_label.setText(f"Saved: {path.name}")
             self.load_club_list()
