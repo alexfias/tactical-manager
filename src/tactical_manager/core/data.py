@@ -1,10 +1,10 @@
-# src/tactical_manager/core/data.py
-
 from __future__ import annotations
 
 import json
 from pathlib import Path
+from dataclasses import fields
 
+from tactical_manager.core.competition import Competition
 from tactical_manager.core.models import (
     BoardExpectations,
     Club,
@@ -18,8 +18,6 @@ from tactical_manager.core.models import (
     Fixture,
 )
 
-from dataclasses import fields
-from tactical_manager.core.competition import Competition
 
 def create_demo_teams() -> dict[str, Team]:
     def make_team(name: str) -> Team:
@@ -43,32 +41,11 @@ def create_demo_teams() -> dict[str, Team]:
 
 def create_round_robin_fixtures(team_names: list[str]) -> list[Fixture]:
     fixtures: list[Fixture] = []
-
     for i, home in enumerate(team_names):
         for away in team_names[i + 1:]:
             fixtures.append(Fixture(home=home, away=away))
-
     return fixtures
 
-
-
-def load_team_from_file(path: Path) -> Team:
-    with path.open("r", encoding="utf-8") as f:
-        raw = json.load(f)
-
-    squad = [Player(**player_data) for player_data in raw["squad"]]
-    return Team(name=raw["name"], squad=squad)
-
-
-def load_teams_from_folder(folder: Path) -> dict[str, Team]:
-    teams: dict[str, Team] = {}
-
-    for path in sorted(folder.glob("*.json")):
-        print(f"Loading team file: {path}")
-        team = load_team_from_file(path)
-        teams[team.name] = team
-
-    return teams
 
 def parse_player(data: dict) -> Player:
     return Player(
@@ -90,14 +67,46 @@ def parse_player(data: dict) -> Player:
         injured=bool(data.get("injured", False)),
     )
 
+
 def parse_tactic(data: dict | None) -> Tactic:
     data = data or {}
-    return Tactic(
-        shape=data.get("shape", "4-4-2"),
-        pressing=data.get("pressing", 50),
-        tempo=data.get("tempo", 50),
-        width=data.get("width", 50),
+
+    allowed_fields = {f.name for f in fields(Tactic)}
+
+    # normalize old JSON keys to the actual Tactic schema
+    normalized = dict(data)
+
+    if "shape" in normalized and "formation" in allowed_fields:
+        normalized["formation"] = normalized.pop("shape")
+
+    defaults = {}
+
+    if "formation" in allowed_fields:
+        defaults["formation"] = "4-4-2"
+    if "pressing" in allowed_fields:
+        defaults["pressing"] = 50
+    if "tempo" in allowed_fields:
+        defaults["tempo"] = 50
+    if "width" in allowed_fields:
+        defaults["width"] = 50
+
+    tactic_kwargs = {
+        key: value
+        for key, value in normalized.items()
+        if key in allowed_fields
+    }
+
+    defaults.update(tactic_kwargs)
+    return Tactic(**defaults)
+
+
+def parse_team(team_data: dict) -> Team:
+    return Team(
+        name=team_data["name"],
+        squad=[parse_player(player) for player in team_data["squad"]],
+        tactic=parse_tactic(team_data.get("tactic")),
     )
+
 
 def parse_club(data: dict) -> Club:
     team_data = data["team"]
@@ -139,6 +148,25 @@ def parse_club(data: dict) -> Club:
         ),
     )
 
+
+def load_team_from_file(path: Path) -> Team:
+    with path.open("r", encoding="utf-8") as f:
+        raw = json.load(f)
+
+    return parse_team(raw)
+
+
+def load_teams_from_folder(folder: Path) -> dict[str, Team]:
+    teams: dict[str, Team] = {}
+
+    for path in sorted(folder.glob("*.json")):
+        print(f"Loading team file: {path}")
+        team = load_team_from_file(path)
+        teams[team.name] = team
+
+    return teams
+
+
 def load_clubs_from_folder(folder: Path) -> dict[str, Club]:
     clubs: dict[str, Club] = {}
 
@@ -151,34 +179,6 @@ def load_clubs_from_folder(folder: Path) -> dict[str, Club]:
         clubs[club.identity.name] = club
 
     return clubs
-
-def parse_team(team_data: dict) -> Team:
-    tactic_data = team_data.get("tactic", {})
-
-    # optional compatibility mapping from old JSON keys to new Tactic fields
-    legacy_key_map = {
-        "shape": "formation",   # only keep this if Tactic has 'formation'
-    }
-
-    normalized_tactic_data = {
-        legacy_key_map.get(key, key): value
-        for key, value in tactic_data.items()
-    }
-
-    allowed_tactic_fields = {f.name for f in fields(Tactic)}
-    tactic_kwargs = {
-        key: value
-        for key, value in normalized_tactic_data.items()
-        if key in allowed_tactic_fields
-    }
-
-    tactic = Tactic(**tactic_kwargs)
-
-    return Team(
-        name=team_data["name"],
-        squad=[parse_player(player) for player in team_data["squad"]],
-        tactic=tactic,
-    )
 
 
 def load_competition_from_file(path: Path) -> Competition:
