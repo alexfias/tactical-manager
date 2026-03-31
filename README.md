@@ -1,17 +1,67 @@
 # Tactical Manager
 
-A football management game prototype focused on meaningful decisions, tactical trade-offs, and long-term squad dynamics.
+A football management game prototype focused on meaningful decisions,
+tactical trade-offs, and long-term squad dynamics.
 
-## Core idea
-Every decision changes the future state of the club through fatigue, morale, injuries, familiarity, and tactical interaction.
+## 🎮 Current State
 
-## MVP goals
-- Manage one team in a fictional league
-- Select lineups and tactics
-- Simulate matches
-- Track fatigue, morale, injuries, and standings
-- Make decisions that matter over time
+Tactical Manager is now a **playable prototype** with both CLI and Qt
+GUI interfaces.
 
-## Run
-```bash
+You can: - Play through a season - Simulate matches - View league
+tables - Track match history - Interact via command line or graphical
+interface
+
+## 🧠 Core Idea
+
+Every decision affects the future state of the club through: - fatigue -
+morale - tactical choices - squad structure
+
+The goal is to build a system where **decisions have long-term
+consequences**, not just short-term outcomes.
+
+## 🚀 Features
+
+-   Match simulation engine
+-   League system with standings
+-   Team and squad structure
+-   CLI interface (stable)
+-   Qt GUI (early version with splash screen)
+
+## 🖥️ Run
+
+### CLI
+
 python scripts/run_cli.py
+
+### GUI (Qt)
+
+python scripts/run_gui.py
+
+## 🧱 Project Structure
+
+src/tactical_manager/ ├── core/ \# Game logic (season, teams, match
+engine) ├── ui/ │ ├── cli.py \# Command line interface │ └── gui_qt.py
+\# Qt GUI
+
+## 🔧 Tech Stack
+
+-   Python
+-   PySide6 (Qt for GUI)
+
+## 📍 Roadmap
+
+Next steps: - GUI match setup (tactics & mentality) - Improved
+navigation (dashboard, views) - Team management (lineups,
+substitutions) - Player development & long-term dynamics - Financial
+system
+
+## ⚠️ Status
+
+This is an **early-stage prototype** under active development. Expect
+frequent changes and breaking updates.
+
+------------------------------------------------------------------------
+
+Built as an experiment in designing a football manager where **decisions
+truly matter**.
