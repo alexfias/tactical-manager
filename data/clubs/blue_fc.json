@@ -25,28 +25,31 @@
     "philosophy": "balanced"
   },
   "team": {
-    "name": "Red FC",
+    "name": "Blue FC",
     "tactic": {
-      "shape": "4-4-2",
+      "formation": "4-4-2",
       "pressing": 50,
       "tempo": 50,
       "width": 50
     },
     "squad": [
       {
-        "name": "Red Keeper",
+        "name": "Blue Keeper",
         "position": "GK",
-        "attack": 20,
-        "defense": 70,
         "passing": 40,
+        "technique": 34,
+        "finishing": 8,
+        "defending": 58,
+        "positioning": 74,
+        "pace": 28,
         "stamina": 55,
+        "work_rate": 48,
         "morale": 60,
-        "form": 60,
-        "wage": 5000,
-        "market_value": 200000,
-        "age": 28,
-        "contract_weeks": 104,
-        "potential": 55
+        "fitness": 95,
+        "fatigue": 10,
+        "familiarity": 50,
+        "injury_proneness": 20,
+        "injured": false
       }
     ]
   }

@@ -11,11 +11,14 @@ from tactical_manager.core.models import (
     ClubFinance,
     ClubInfrastructure,
     ClubSupport,
+    ClubIdentity,
     Player,
     Tactic,
     Team,
     Fixture,
 )
+
+from dataclasses import fields
 
 def create_demo_teams() -> dict[str, Team]:
     def make_team(name: str) -> Team:
@@ -70,17 +73,20 @@ def parse_player(data: dict) -> Player:
     return Player(
         name=data["name"],
         position=data["position"],
-        attack=data["attack"],
-        defense=data["defense"],
-        passing=data["passing"],
-        stamina=data["stamina"],
-        morale=data["morale"],
-        form=data["form"],
-        wage=data.get("wage", 0),
-        market_value=data.get("market_value", 0),
-        age=data.get("age", 24),
-        contract_weeks=data.get("contract_weeks", 104),
-        potential=data.get("potential", 50),
+        passing=float(data["passing"]),
+        technique=float(data["technique"]),
+        finishing=float(data["finishing"]),
+        defending=float(data["defending"]),
+        positioning=float(data["positioning"]),
+        pace=float(data["pace"]),
+        stamina=float(data["stamina"]),
+        work_rate=float(data["work_rate"]),
+        fatigue=float(data.get("fatigue", 10.0)),
+        fitness=float(data.get("fitness", 95.0)),
+        morale=float(data.get("morale", 70.0)),
+        familiarity=float(data.get("familiarity", 50.0)),
+        injury_proneness=float(data.get("injury_proneness", 20.0)),
+        injured=bool(data.get("injured", False)),
     )
 
 def parse_tactic(data: dict | None) -> Tactic:
@@ -101,7 +107,10 @@ def parse_club(data: dict) -> Club:
     board_data = data.get("board", {})
 
     return Club(
-        name=data["name"],
+        identity=ClubIdentity(
+            name=data["name"],
+            reputation=data.get("reputation", 50.0),
+        ),
         team=parse_team(team_data),
         finance=ClubFinance(
             balance=finance_data.get("balance", 0),
@@ -126,7 +135,6 @@ def parse_club(data: dict) -> Club:
             max_wage_ratio=board_data.get("max_wage_ratio", 0.7),
             philosophy=board_data.get("philosophy", "balanced"),
         ),
-        reputation=data.get("reputation", 50.0),
     )
 
 def load_clubs_from_folder(folder: Path) -> dict[str, Club]:
@@ -138,24 +146,37 @@ def load_clubs_from_folder(folder: Path) -> dict[str, Club]:
             data = json.load(f)
 
         club = parse_club(data)
-        clubs[club.name] = club
+        clubs[club.identity.name] = club
 
     return clubs
 
-def parse_team(data: dict) -> Team:
-    squad = [parse_player(player_data) for player_data in data.get("squad", [])]
+def parse_team(team_data: dict) -> Team:
+    tactic_data = team_data.get("tactic", {})
 
-    tactic_data = data.get("tactic", {})
-    tactic = Tactic(
-        shape=tactic_data.get("shape", "4-4-2"),
-        pressing=tactic_data.get("pressing", 50),
-        tempo=tactic_data.get("tempo", 50),
-        width=tactic_data.get("width", 50),
-    )
+    # optional compatibility mapping from old JSON keys to new Tactic fields
+    legacy_key_map = {
+        "shape": "formation",   # only keep this if Tactic has 'formation'
+    }
+
+    normalized_tactic_data = {
+        legacy_key_map.get(key, key): value
+        for key, value in tactic_data.items()
+    }
+
+    allowed_tactic_fields = {f.name for f in fields(Tactic)}
+    tactic_kwargs = {
+        key: value
+        for key, value in normalized_tactic_data.items()
+        if key in allowed_tactic_fields
+    }
+
+    tactic = Tactic(**tactic_kwargs)
 
     return Team(
-        name=data["name"],
-        squad=squad,
+        name=team_data["name"],
+        squad=[parse_player(player) for player in team_data["squad"]],
         tactic=tactic,
     )
+
+
 
