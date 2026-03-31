@@ -13,6 +13,19 @@ from tactical_manager.ui.cli import run_cli
 from tactical_manager.ui.gui_qt import run_gui
 
 
+def choose_interface() -> str:
+    print("=== Tactical Manager ===")
+    print("Choose interface:")
+    print("1. CLI")
+    print("2. GUI")
+
+    while True:
+        choice = input("> ").strip()
+        if choice == "1":
+            return "cli"
+        if choice == "2":
+            return "gui"
+        print("Invalid choice. Please enter 1 or 2.")
 
 def choose_user_club(clubs: dict) -> str:
     club_names = list(clubs.keys())
@@ -48,8 +61,14 @@ def main() -> None:
         fixtures=fixtures,
         user_club=user_club,
     )
-    run_gui(season)
-    #run_cli(season)
+    
+    interface = choose_interface()
+
+    if interface == "cli":
+        run_cli(clubs)
+    else:
+        run_gui(clubs)
+
 
 
 if __name__ == "__main__":
