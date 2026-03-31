@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from tactical_manager.core.match_engine import simulate_match
-from tactical_manager.core.models import Fixture, Team, Club
+from tactical_manager.core.models import Fixture, Team, Club, LeagueTableRow
 from tactical_manager.core.updates import apply_match_result
-
 
 from dataclasses import dataclass, field
 
@@ -54,6 +53,12 @@ class Season:
             home_plan = user_plan if user_side == "home" else "balanced"
             away_plan = user_plan if user_side == "away" else "balanced"
 
+            if not home.has_valid_starting_xi():
+                home.auto_pick_starting_xi()
+
+            if not away.has_valid_starting_xi():
+                away.auto_pick_starting_xi()
+
             result = simulate_match(
                 home,
                 away,
@@ -72,6 +77,51 @@ class Season:
             return fixture
 
         return None
+
+    def get_table(self) -> list[LeagueTableRow]:
+        table = {
+            name: LeagueTableRow(name=name)
+            for name in self.clubs
+        }
+
+        for fixture in self.fixtures:
+            if not fixture.played or fixture.result is None:
+                continue
+
+            home = table[fixture.home]
+            away = table[fixture.away]
+
+            hg = fixture.result.stats.home_goals
+            ag = fixture.result.stats.away_goals
+
+            home.played += 1
+            away.played += 1
+
+            home.goals_for += hg
+            home.goals_against += ag
+
+            away.goals_for += ag
+            away.goals_against += hg
+
+            if hg > ag:
+                home.wins += 1
+                away.losses += 1
+                home.points += 3
+            elif ag > hg:
+                away.wins += 1
+                home.losses += 1
+                away.points += 3
+            else:
+                home.draws += 1
+                away.draws += 1
+                home.points += 1
+                away.points += 1
+
+        return sorted(
+            table.values(),
+            key=lambda row: (row.points, row.goal_difference(), row.goals_for),
+            reverse=True,
+        )
 
 def create_double_round_robin(team_names: list[str]) -> list[Fixture]:
     fixtures: list[Fixture] = []

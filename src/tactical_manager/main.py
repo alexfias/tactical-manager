@@ -65,9 +65,9 @@ def main() -> None:
     interface = choose_interface()
 
     if interface == "cli":
-        run_cli(clubs)
+        run_cli(season)
     else:
-        run_gui(clubs)
+        run_gui(season)
 
 
 

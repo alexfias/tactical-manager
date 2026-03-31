@@ -63,10 +63,18 @@ class Team:
     name: str
     squad: List[Player]
     tactic: Tactic = field(default_factory=Tactic)
-    points: int = 0
+    starting_xi: list[Player] = field(default_factory=list)
+    played: int = 0
+    wins: int = 0
+    draws: int = 0
+    losses: int = 0
     goals_for: int = 0
     goals_against: int = 0
-    played: int = 0
+    points: int = 0
+
+    def __post_init__(self) -> None:
+        if not self.starting_xi and len(self.squad) >= 11:
+            self.starting_xi = self.squad[:11]
 
     def available_players(self) -> List[Player]:
         return [p for p in self.squad if not p.injured]
@@ -74,6 +82,12 @@ class Team:
     def goal_difference(self) -> int:
         return self.goals_for - self.goals_against
 
+    def has_valid_starting_xi(self) -> bool:
+        return self.starting_xi is not None and len(self.starting_xi) == 11
+
+    def auto_pick_starting_xi(self) -> None:
+        # simple version for now
+        self.starting_xi = self.squad[:11]
 
 @dataclass
 class MatchStats:
@@ -144,3 +158,18 @@ class BoardExpectations:
     target_finish: int = 6
     max_wage_ratio: float = 0.7
     philosophy: str = "balanced"   # balanced / youth / ambitious / selling_club
+    
+
+@dataclass
+class LeagueTableRow:
+    name: str
+    played: int = 0
+    wins: int = 0
+    draws: int = 0
+    losses: int = 0
+    goals_for: int = 0
+    goals_against: int = 0
+    points: int = 0
+
+    def goal_difference(self) -> int:
+        return self.goals_for - self.goals_against

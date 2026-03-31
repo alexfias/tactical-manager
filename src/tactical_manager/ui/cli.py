@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 from tactical_manager.core.season import Season
-from tactical_manager.ui.render import render_match, render_table
+from tactical_manager.ui.render import (
+    render_club_overview,
+    render_match,
+    render_table,
+)
 from tactical_manager.core.models import Tactic
 from tactical_manager.ui.render import render_squad
 
@@ -60,7 +64,7 @@ def run_cli(season: Season) -> None:
 
             if fixture is None:
                 print("Season finished.")
-                print(render_table(season.table()))
+                print(render_table(season.get_table()))
                 break
 
             print()
@@ -69,12 +73,13 @@ def run_cli(season: Season) -> None:
 
         elif choice == "2":
             print()
-            print(render_table(season.table()))
+            print(render_table(season.get_table()))
             print()
 
         elif choice == "3":
             print()
-            print(render_club_overview(season.user_club))
+            club = season.clubs[season.user_club]
+            print(render_club_overview(club))
             print()
 
         elif choice == "4":
