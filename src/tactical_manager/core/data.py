@@ -19,6 +19,7 @@ from tactical_manager.core.models import (
 )
 
 from dataclasses import fields
+from tactical_manager.core.competition import Competition
 
 def create_demo_teams() -> dict[str, Team]:
     def make_team(name: str) -> Team:
@@ -107,6 +108,7 @@ def parse_club(data: dict) -> Club:
     board_data = data.get("board", {})
 
     return Club(
+        country=data.get("country", "Fictionland"),
         identity=ClubIdentity(
             name=data["name"],
             reputation=data.get("reputation", 50.0),
@@ -179,4 +181,24 @@ def parse_team(team_data: dict) -> Team:
     )
 
 
+def load_competition_from_file(path: Path) -> Competition:
+    with path.open("r", encoding="utf-8") as f:
+        raw = json.load(f)
 
+    return Competition(
+        name=raw["name"],
+        country=raw["country"],
+        competition_type=raw["type"],
+        club_names=raw["clubs"],
+        rounds=raw.get("rounds", 2),
+        points_for_win=raw.get("points_for_win", 3),
+        points_for_draw=raw.get("points_for_draw", 1),
+        points_for_loss=raw.get("points_for_loss", 0),
+    )
+
+
+def load_competitions_from_folder(folder: Path) -> list[Competition]:
+    competitions = []
+    for path in sorted(folder.glob("*.json")):
+        competitions.append(load_competition_from_file(path))
+    return competitions

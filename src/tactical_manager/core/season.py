@@ -15,7 +15,7 @@ from tactical_manager.core.models import Club, Tactic
 @dataclass
 class Season:
     clubs: dict[str, Club]
-    fixtures: list
+    fixtures: list[Fixture]
     user_club: str
     current_round: int = 1
     history: list[str] = field(default_factory=list)

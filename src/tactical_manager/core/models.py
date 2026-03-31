@@ -103,6 +103,7 @@ class Fixture:
 @dataclass
 class Club:
     identity: ClubIdentity
+    country: str
     team: Team
     finance: ClubFinance
     infrastructure: ClubInfrastructure

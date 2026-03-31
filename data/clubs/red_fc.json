@@ -1,5 +1,6 @@
 {
   "name": "Red FC",
+  "country": "Germany",
   "reputation": 55.0,
   "finance": {
     "balance": 1000000,

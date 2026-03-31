@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tactical_manager.core.data import create_round_robin_fixtures, load_clubs_from_folder
+
+from tactical_manager.core.data import (
+    create_round_robin_fixtures,
+    load_clubs_from_folder,
+    load_competitions_from_folder,
+)
 from tactical_manager.core.season import Season
 from tactical_manager.ui.cli import run_cli
 from tactical_manager.ui.gui_qt import run_gui
@@ -31,6 +36,8 @@ def choose_user_club(clubs: dict) -> str:
 
 def main() -> None:
     clubs = load_clubs_from_folder(Path("data/clubs"))
+    competitions = load_competitions_from_folder(Path("data/competitions"))
+    competition = competitions[0]
     print("Loaded clubs:", list(clubs.keys()))
 
     fixtures = create_round_robin_fixtures(list(clubs.keys()))

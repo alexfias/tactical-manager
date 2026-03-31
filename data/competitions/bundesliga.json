@@ -1,0 +1,8 @@
+{
+  "name": "Bundesliga",
+  "type": "league",
+  "country": "Germany",
+  "division_level": 1,
+  "rounds": 2,
+  "clubs": ["Blue FC", "Red FC"]
+}
