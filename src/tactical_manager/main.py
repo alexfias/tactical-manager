@@ -5,6 +5,8 @@ from pathlib import Path
 from tactical_manager.core.data import create_round_robin_fixtures, load_clubs_from_folder
 from tactical_manager.core.season import Season
 from tactical_manager.ui.cli import run_cli
+from tactical_manager.ui.gui_qt import run_gui
+
 
 
 def choose_user_club(clubs: dict) -> str:
@@ -39,8 +41,8 @@ def main() -> None:
         fixtures=fixtures,
         user_club=user_club,
     )
-
-    run_cli(season)
+    run_gui(season)
+    #run_cli(season)
 
 
 if __name__ == "__main__":
