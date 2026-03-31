@@ -1,7 +1,9 @@
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout,
-    QPushButton, QLabel, QTextEdit
+    QPushButton, QLabel, QTextEdit, QSplashScreen
 )
+from PySide6.QtGui import QPixmap, QFont
+from PySide6.QtCore import Qt, QTimer
 
 from tactical_manager.core.season import Season
 from tactical_manager.ui.render import render_match, render_table
@@ -14,24 +16,26 @@ class GameWindow(QWidget):
         self.season = season
 
         self.setWindowTitle("Tactical Manager")
+        self.resize(700, 500)
 
-        # Layout
         self.layout = QVBoxLayout()
 
         self.title = QLabel("Tactical Manager")
+        self.title.setFont(QFont("Arial", 18, QFont.Bold))
+        self.title.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.title)
 
         self.play_button = QPushButton("Play Next Match")
         self.play_button.clicked.connect(self.play_match)
         self.layout.addWidget(self.play_button)
 
-        self.output = QTextEdit()
-        self.output.setReadOnly(True)
-        self.layout.addWidget(self.output)
-
         self.table_button = QPushButton("Show Table")
         self.table_button.clicked.connect(self.show_table)
         self.layout.addWidget(self.table_button)
+
+        self.output = QTextEdit()
+        self.output.setReadOnly(True)
+        self.layout.addWidget(self.output)
 
         self.setLayout(self.layout)
 
@@ -53,6 +57,26 @@ class GameWindow(QWidget):
 
 def run_gui(season: Season):
     app = QApplication([])
+
+    pixmap = QPixmap("assets/splash.png")
+
+    splash = QSplashScreen(pixmap)
+    splash.setWindowFlag(Qt.FramelessWindowHint)
+    splash.showMessage(
+        "Tactical Manager\nLoading...",
+        Qt.AlignCenter | Qt.AlignBottom,
+        Qt.white,
+    )
+    splash.show()
+
+    app.processEvents()
+
     window = GameWindow(season)
-    window.show()
+
+    def start_main_window():
+        window.show()
+        splash.finish(window)
+
+    QTimer.singleShot(5000, start_main_window)
+
     app.exec()
