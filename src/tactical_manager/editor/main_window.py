@@ -18,14 +18,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from tactical_manager.core.data import load_club, save_club
+from tactical_manager.core.data import load_club, save_club, parse_club
 from tactical_manager.core.models import Club, Player
 from tactical_manager.editor.state import EditorState
 from tactical_manager.editor.validators import validate_club
 from tactical_manager.editor.widgets.club_details_widget import ClubDetailsWidget
 from tactical_manager.editor.widgets.player_form_widget import PlayerFormWidget
 from tactical_manager.editor.widgets.squad_table_widget import SquadTableWidget
-
 
 class ClubEditorWindow(QMainWindow):
     def __init__(self, clubs_dir: Path) -> None:
@@ -137,9 +136,15 @@ class ClubEditorWindow(QMainWindow):
 
     def load_club_file(self, path: Path) -> None:
         try:
-            club = load_club(path)
+            with path.open("r", encoding="utf-8") as f:
+                raw = json.load(f)
+            club = parse_club(raw)
         except Exception as exc:
-            QMessageBox.critical(self, "Load Error", f"Could not load club file:\n{path}\n\n{exc}")
+            QMessageBox.critical(
+                self,
+                "Load Error",
+                f"Could not load club file:\n{path}\n\n{exc}"
+            )
             return
 
         self.state.current_file = path
@@ -148,7 +153,13 @@ class ClubEditorWindow(QMainWindow):
         self.state.dirty = False
 
         self.club_details.load_club(club)
-        self.squad_table.load_players(club.team.squad)
+
+        print("Loaded club:", club.identity.name)
+        print("Team name:", club.team.name)
+        print("Squad object:", club.team.squad)
+        print("Squad length:", len(club.team.squad))
+        
+        self.squad_table.load_players(self._get_squad())
         self.validation_box.clear()
         self.status_label.setText(f"Loaded: {path.name}")
 
@@ -173,7 +184,7 @@ class ClubEditorWindow(QMainWindow):
 
         row = selected[0].row()
         self.state.selected_player_index = row
-        self.player_form.load_player(club.team.squad[row])
+        self.player_form.load_player(self._get_squad()[row])
 
     def apply_club_changes(self) -> None:
         club = self.state.current_club
@@ -191,8 +202,8 @@ class ClubEditorWindow(QMainWindow):
         if club is None or idx is None:
             return
 
-        self.player_form.apply_to_player(club.team.squad[idx])
-        self.squad_table.load_players(club.team.squad)
+        self.player_form.apply_to_player(self._get_squad()[idx])
+        self.squad_table.load_players(self._get_squad())
         self.squad_table.selectRow(idx)
         self.state.dirty = True
         self.status_label.setText("Player changes applied.")
@@ -205,37 +216,47 @@ class ClubEditorWindow(QMainWindow):
         player = Player(
             name="New Player",
             position="MID",
-            attack=50,
-            defense=50,
-            passing=50,
-            stamina=50,
-            morale=50,
-            form=50,
-            wage=1000,
-            market_value=100000,
-            age=22,
-            contract_weeks=52,
-            potential=60,
+            passing=50.0,
+            technique=50.0,
+            finishing=50.0,
+            defending=50.0,
+            positioning=50.0,
+            pace=50.0,
+            stamina=50.0,
+            work_rate=50.0,
+            fatigue=10.0,
+            fitness=95.0,
+            morale=50.0,
+            familiarity=50.0,
+            injury_proneness=20.0,
+            injured=False,
         )
-        club.team.squad.append(player)
-        self.squad_table.load_players(club.team.squad)
-        self.squad_table.selectRow(len(club.team.squad) - 1)
+
+        squad = self._get_squad()
+        squad.append(player)
+
+        self.squad_table.load_players(squad)
+        new_index = len(squad) - 1
+        self.squad_table.selectRow(new_index)
+        self.state.selected_player_index = new_index
+        self.player_form.load_player(player)
+
         self.state.dirty = True
         self.status_label.setText("Player added.")
 
     def remove_selected_player(self) -> None:
-        club = self.state.current_club
         idx = self.state.selected_player_index
+        squad = self._get_squad()
 
-        if club is None or idx is None:
+        if idx is None or idx < 0 or idx >= len(squad):
             return
 
-        removed = club.team.squad.pop(idx)
+        removed = squad.pop(idx)
         self.state.selected_player_index = None
-        self.squad_table.load_players(club.team.squad)
+        self.squad_table.load_players(squad)
         self.validation_box.append(f"Removed player: {removed.name}")
-        self.state.dirty = True
         self.status_label.setText("Player removed.")
+        self.state.dirty = True
 
     def run_validation(self) -> None:
         club = self.state.current_club
@@ -312,19 +333,22 @@ class ClubEditorWindow(QMainWindow):
                     {
                         "name": p.name,
                         "position": p.position,
-                        "attack": p.attack,
-                        "defense": p.defense,
                         "passing": p.passing,
+                        "technique": p.technique,
+                        "finishing": p.finishing,
+                        "defending": p.defending,
+                        "positioning": p.positioning,
+                        "pace": p.pace,
                         "stamina": p.stamina,
+                        "work_rate": p.work_rate,
+                        "fatigue": p.fatigue,
+                        "fitness": p.fitness,
                         "morale": p.morale,
-                        "form": p.form,
-                        "wage": p.wage,
-                        "market_value": p.market_value,
-                        "age": p.age,
-                        "contract_weeks": p.contract_weeks,
-                        "potential": p.potential,
+                        "familiarity": p.familiarity,
+                        "injury_proneness": p.injury_proneness,
+                        "injured": p.injured,
                     }
-                    for p in club.team.squad
+                    for p in self._get_squad()
                 ],
             },
             "finance": {
@@ -351,3 +375,10 @@ class ClubEditorWindow(QMainWindow):
                 "confidence": club.board.confidence,
             },
         }
+
+    def _get_squad(self) -> list[Player]:
+        club = self.state.current_club
+        if club is None:
+            return []
+
+        return club.team.squad
