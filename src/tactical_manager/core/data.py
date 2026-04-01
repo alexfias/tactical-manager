@@ -250,21 +250,57 @@ def club_to_dict(club: Club) -> dict:
     return {
         "name": club.identity.name,
         "reputation": club.identity.reputation,
+        "country": club.country,
         "team": {
             "name": club.team.name,
             "squad": [
                 {
                     "name": p.name,
                     "position": p.position,
-                    "attack": p.attack,
-                    "defense": p.defense,
+
+                    # technical
                     "passing": p.passing,
+                    "first_touch": p.first_touch,
+                    "technique": p.technique,
+                    "dribbling": p.dribbling,
+                    "finishing": p.finishing,
+                    "long_shots": p.long_shots,
+                    "tackling": p.tackling,
+                    "heading": p.heading,
+                    "crossing": p.crossing,
+
+                    # mental / tactical
+                    "positioning": p.positioning,
+                    "vision": p.vision,
+                    "decision_making": p.decision_making,
+                    "anticipation": p.anticipation,
+                    "composure": p.composure,
+                    "concentration": p.concentration,
+                    "work_rate": p.work_rate,
+                    "discipline": p.discipline,
+                    "aggression": p.aggression,
+
+                    # physical
+                    "pace": p.pace,
+                    "acceleration": p.acceleration,
+                    "agility": p.agility,
+                    "strength": p.strength,
                     "stamina": p.stamina,
+                    "jumping": p.jumping,
+
+                    # dynamic state
+                    "fatigue": p.fatigue,
+                    "fitness": p.fitness,
                     "morale": p.morale,
-                    "form": p.form,
-                    "wage": p.wage,
-                    "market_value": p.market_value,
+                    "familiarity": p.familiarity,
+                    "confidence": p.confidence,
+                    "sharpness": p.sharpness,
+                    "injury_proneness": p.injury_proneness,
+                    "injured": p.injured,
+
+                    # career / economic
                     "age": p.age,
+                    "wage": p.wage,
                     "contract_weeks": p.contract_weeks,
                     "potential": p.potential,
                 }
@@ -284,15 +320,15 @@ def club_to_dict(club: Club) -> dict:
             "ticket_price": club.infrastructure.ticket_price,
             "training_level": club.infrastructure.training_level,
             "youth_level": club.infrastructure.youth_level,
-            "medical_level": club.infrastructure.medical_level,
         },
         "support": {
-            "fan_mood": club.support.fan_mood,
-            "expectation": club.support.expectation,
+            "fan_confidence": club.support.fan_confidence,
+            "fan_base": club.support.fan_base,
         },
         "board": {
-            "patience": club.board.patience,
-            "confidence": club.board.confidence,
+            "target_finish": club.board.target_finish,
+            "max_wage_ratio": club.board.max_wage_ratio,
+            "philosophy": club.board.philosophy,
         },
     }
 

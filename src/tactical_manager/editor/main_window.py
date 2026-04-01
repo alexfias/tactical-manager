@@ -25,7 +25,68 @@ from tactical_manager.editor.validators import validate_club
 from tactical_manager.editor.widgets.club_details_widget import ClubDetailsWidget
 from tactical_manager.editor.widgets.player_form_widget import PlayerFormWidget
 from tactical_manager.editor.widgets.squad_table_widget import SquadTableWidget
+from PySide6.QtWidgets import (
+    QWidget, QHBoxLayout, QVBoxLayout, QSplitter,
+    QTableWidget, QTableWidgetItem,
+    QLabel, QLineEdit, QPushButton, QFormLayout, QScrollArea
+)
+from PySide6.QtCore import Qt
 
+
+class EditorWindow(QWidget):
+    def __init__(self, club):
+        super().__init__()
+
+        self.club = club
+        self.selected_player = None
+
+        self.setWindowTitle("Squad Editor")
+        self.resize(1000, 600)
+
+        layout = QHBoxLayout(self)
+
+        splitter = QSplitter(Qt.Horizontal)
+        layout.addWidget(splitter)
+
+        # LEFT: TABLE
+        self.table = QTableWidget()
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(["Name", "Pos", "Age", "CA", "Value"])
+        self.table.cellClicked.connect(self.on_player_selected)
+
+        splitter.addWidget(self.table)
+
+        # RIGHT: DETAIL PANEL
+        self.detail_widget = QWidget()
+        self.detail_layout = QFormLayout(self.detail_widget)
+
+        self.name_edit = QLineEdit()
+        self.position_edit = QLineEdit()
+        self.age_edit = QLineEdit()
+
+        self.ca_label = QLabel("-")
+        self.value_label = QLabel("-")
+
+        self.detail_layout.addRow("Name", self.name_edit)
+        self.detail_layout.addRow("Position", self.position_edit)
+        self.detail_layout.addRow("Age", self.age_edit)
+        self.detail_layout.addRow("Current Ability", self.ca_label)
+        self.detail_layout.addRow("Market Value", self.value_label)
+
+        self.save_button = QPushButton("Save")
+        self.save_button.clicked.connect(self.save_player)
+        self.detail_layout.addRow(self.save_button)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(self.detail_widget)
+
+        splitter.addWidget(scroll)
+
+        splitter.setSizes([400, 600])
+
+        self.refresh_table()
+        
 class ClubEditorWindow(QMainWindow):
     def __init__(self, clubs_dir: Path) -> None:
         super().__init__()
@@ -153,11 +214,6 @@ class ClubEditorWindow(QMainWindow):
         self.state.dirty = False
 
         self.club_details.load_club(club)
-
-        print("Loaded club:", club.identity.name)
-        print("Team name:", club.team.name)
-        print("Squad object:", club.team.squad)
-        print("Squad length:", len(club.team.squad))
         
         self.squad_table.load_players(self._get_squad())
         self.validation_box.clear()
