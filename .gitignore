@@ -18,3 +18,10 @@ venv/
 # IDE
 .vscode/
 .idea/
+
+# Local club data
+data/clubs/*.json
+
+# (optional) other runtime data
+data/saves/
+data/tmp/
