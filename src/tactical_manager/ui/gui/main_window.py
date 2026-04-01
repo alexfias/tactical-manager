@@ -15,6 +15,7 @@ from tactical_manager.core.season import Season
 from tactical_manager.ui.gui.dialogs import MatchSetupDialog
 from tactical_manager.ui.gui.styles import main_stylesheet
 from tactical_manager.ui.gui.widgets.match_result_widget import MatchResultWidget
+from tactical_manager.ui.gui.widgets.team_management_widget import TeamManagementWidget
 from tactical_manager.ui.render import render_table
 
 
@@ -104,9 +105,14 @@ class GameWindow(QWidget):
         self.output = QTextEdit()
         self.output.setReadOnly(True)
 
+        club = self.season.clubs[self.season.user_club]
+        self.team_management_widget = TeamManagementWidget(club)
+        self.team_management_widget.hide()
+
         content_layout.addWidget(self.section_title)
         content_layout.addWidget(self.match_result_widget)
         content_layout.addWidget(self.output)
+        content_layout.addWidget(self.team_management_widget)
 
         body_layout.addWidget(menu_panel)
         body_layout.addWidget(content_panel, 1)
@@ -118,6 +124,11 @@ class GameWindow(QWidget):
 
         self.show_club_overview()
 
+    def hide_all_content_widgets(self) -> None:
+        self.output.hide()
+        self.match_result_widget.hide()
+        self.team_management_widget.hide()
+
     def set_active_button(self, active_button: QPushButton) -> None:
         for button in self.nav_buttons:
             button.setProperty("active", button is active_button)
@@ -127,13 +138,13 @@ class GameWindow(QWidget):
 
     def set_text_content(self, title: str, text: str) -> None:
         self.section_title.setText(title)
-        self.match_result_widget.hide()
+        self.hide_all_content_widgets()
         self.output.show()
         self.output.setPlainText(text)
 
     def set_match_content(self, fixture) -> None:
         self.section_title.setText("Match Result")
-        self.output.hide()
+        self.hide_all_content_widgets()
         self.match_result_widget.show()
 
         result = fixture.result
@@ -258,21 +269,9 @@ class GameWindow(QWidget):
         self.set_active_button(self.team_button)
 
         club = self.season.clubs[self.season.user_club]
-        team = club.team
+        self.team_management_widget.club = club
+        self.team_management_widget.refresh()
 
-        starting_xi_names = {player.name for player in team.starting_xi}
-
-        lines = [
-            f"Team: {team.name}",
-            "",
-            "=== SQUAD ===",
-        ]
-
-        for player in team.squad:
-            starter_mark = "*" if player.name in starting_xi_names else " "
-            lines.append(
-                f"{starter_mark} {player.name} | {player.position} | "
-                f"Morale {player.morale:.0f} | Fitness {player.fitness:.0f} | Fatigue {player.fatigue:.0f}"
-            )
-
-        self.set_text_content("Team Management", "\n".join(lines))
+        self.section_title.setText("Team Management")
+        self.hide_all_content_widgets()
+        self.team_management_widget.show()
