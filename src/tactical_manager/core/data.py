@@ -51,20 +51,52 @@ def parse_player(data: dict) -> Player:
     return Player(
         name=data["name"],
         position=data["position"],
-        passing=float(data["passing"]),
-        technique=float(data["technique"]),
-        finishing=float(data["finishing"]),
-        defending=float(data["defending"]),
-        positioning=float(data["positioning"]),
-        pace=float(data["pace"]),
-        stamina=float(data["stamina"]),
-        work_rate=float(data["work_rate"]),
+
+        # technical
+        passing=float(data.get("passing", 50.0)),
+        first_touch=float(data.get("first_touch", 50.0)),
+        technique=float(data.get("technique", 50.0)),
+        dribbling=float(data.get("dribbling", 50.0)),
+        finishing=float(data.get("finishing", 50.0)),
+        long_shots=float(data.get("long_shots", 50.0)),
+        tackling=float(data.get("tackling", 50.0)),
+        heading=float(data.get("heading", 50.0)),
+        crossing=float(data.get("crossing", 50.0)),
+
+        # mental / tactical
+        positioning=float(data.get("positioning", 50.0)),
+        vision=float(data.get("vision", 50.0)),
+        decision_making=float(data.get("decision_making", 50.0)),
+        anticipation=float(data.get("anticipation", 50.0)),
+        composure=float(data.get("composure", 50.0)),
+        concentration=float(data.get("concentration", 50.0)),
+        work_rate=float(data.get("work_rate", 50.0)),
+        discipline=float(data.get("discipline", 50.0)),
+        aggression=float(data.get("aggression", 50.0)),
+
+        # physical
+        pace=float(data.get("pace", 50.0)),
+        acceleration=float(data.get("acceleration", 50.0)),
+        agility=float(data.get("agility", 50.0)),
+        strength=float(data.get("strength", 50.0)),
+        stamina=float(data.get("stamina", 50.0)),
+        jumping=float(data.get("jumping", 50.0)),
+
+        # dynamic state
         fatigue=float(data.get("fatigue", 10.0)),
         fitness=float(data.get("fitness", 95.0)),
-        morale=float(data.get("morale", 70.0)),
+        morale=float(data.get("morale", 60.0)),
         familiarity=float(data.get("familiarity", 50.0)),
+        confidence=float(data.get("confidence", 50.0)),
+        sharpness=float(data.get("sharpness", 50.0)),
         injury_proneness=float(data.get("injury_proneness", 20.0)),
         injured=bool(data.get("injured", False)),
+
+        # career / economic
+        age=int(data.get("age", 24)),
+        wage=int(data.get("wage", 1000)),
+        contract_weeks=int(data.get("contract_weeks", 104)),
+        potential=float(data.get("potential", 60.0)),
     )
 
 
@@ -100,11 +132,13 @@ def parse_tactic(data: dict | None) -> Tactic:
     return Tactic(**defaults)
 
 
-def parse_team(team_data: dict) -> Team:
+def parse_team(data: dict) -> Team:
+    squad_data = data.get("squad", [])
+    squad = [parse_player(player_data) for player_data in squad_data]
+
     return Team(
-        name=team_data["name"],
-        squad=[parse_player(player) for player in team_data["squad"]],
-        tactic=parse_tactic(team_data.get("tactic")),
+        name=data["name"],
+        squad=squad,
     )
 
 

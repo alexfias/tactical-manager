@@ -216,18 +216,44 @@ class ClubEditorWindow(QMainWindow):
         player = Player(
             name="New Player",
             position="MID",
+
+            # technical
             passing=50.0,
+            first_touch=50.0,
             technique=50.0,
+            dribbling=50.0,
             finishing=50.0,
-            defending=50.0,
+            long_shots=50.0,
+            tackling=50.0,
+            heading=50.0,
+            crossing=50.0,
+
+            # mental / tactical
             positioning=50.0,
-            pace=50.0,
-            stamina=50.0,
+            vision=50.0,
+            decision_making=50.0,
+            anticipation=50.0,
+            composure=50.0,
+            concentration=50.0,
             work_rate=50.0,
+            discipline=50.0,
+            aggression=50.0,
+
+            # physical
+            pace=50.0,
+            acceleration=50.0,
+            agility=50.0,
+            strength=50.0,
+            stamina=50.0,
+            jumping=50.0,
+
+            # dynamic state
             fatigue=10.0,
             fitness=95.0,
             morale=50.0,
             familiarity=50.0,
+            confidence=50.0,
+            sharpness=50.0,
             injury_proneness=20.0,
             injured=False,
         )
@@ -243,7 +269,7 @@ class ClubEditorWindow(QMainWindow):
 
         self.state.dirty = True
         self.status_label.setText("Player added.")
-
+        
     def remove_selected_player(self) -> None:
         idx = self.state.selected_player_index
         squad = self._get_squad()
@@ -333,18 +359,44 @@ class ClubEditorWindow(QMainWindow):
                     {
                         "name": p.name,
                         "position": p.position,
+
+                        # technical
                         "passing": p.passing,
+                        "first_touch": p.first_touch,
                         "technique": p.technique,
+                        "dribbling": p.dribbling,
                         "finishing": p.finishing,
-                        "defending": p.defending,
+                        "long_shots": p.long_shots,
+                        "tackling": p.tackling,
+                        "heading": p.heading,
+                        "crossing": p.crossing,
+
+                        # mental / tactical
                         "positioning": p.positioning,
-                        "pace": p.pace,
-                        "stamina": p.stamina,
+                        "vision": p.vision,
+                        "decision_making": p.decision_making,
+                        "anticipation": p.anticipation,
+                        "composure": p.composure,
+                        "concentration": p.concentration,
                         "work_rate": p.work_rate,
+                        "discipline": p.discipline,
+                        "aggression": p.aggression,
+
+                        # physical
+                        "pace": p.pace,
+                        "acceleration": p.acceleration,
+                        "agility": p.agility,
+                        "strength": p.strength,
+                        "stamina": p.stamina,
+                        "jumping": p.jumping,
+
+                        # dynamic state
                         "fatigue": p.fatigue,
                         "fitness": p.fitness,
                         "morale": p.morale,
                         "familiarity": p.familiarity,
+                        "confidence": p.confidence,
+                        "sharpness": p.sharpness,
                         "injury_proneness": p.injury_proneness,
                         "injured": p.injured,
                     }
@@ -380,5 +432,5 @@ class ClubEditorWindow(QMainWindow):
         club = self.state.current_club
         if club is None:
             return []
-
+        
         return club.team.squad

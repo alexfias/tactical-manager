@@ -16,21 +16,52 @@ class Player:
     name: str
     position: str  # GK, DEF, MID, ATT
 
-    passing: float
-    technique: float
-    finishing: float
-    defending: float
-    positioning: float
-    pace: float
-    stamina: float
-    work_rate: float
+    # technical
+    passing: float = 50.0
+    first_touch: float = 50.0
+    technique: float = 50.0
+    dribbling: float = 50.0
+    finishing: float = 50.0
+    long_shots: float = 50.0
+    tackling: float = 50.0
+    heading: float = 50.0
+    crossing: float = 50.0
 
+    # mental / tactical
+    positioning: float = 50.0
+    vision: float = 50.0
+    decision_making: float = 50.0
+    anticipation: float = 50.0
+    composure: float = 50.0
+    concentration: float = 50.0
+    work_rate: float = 50.0
+    discipline: float = 50.0
+    aggression: float = 50.0
+
+    # physical
+    pace: float = 50.0
+    acceleration: float = 50.0
+    agility: float = 50.0
+    strength: float = 50.0
+    stamina: float = 50.0
+    jumping: float = 50.0
+
+    # dynamic state
     fatigue: float = 10.0
     fitness: float = 95.0
-    morale: float = 70.0
+    morale: float = 60.0
     familiarity: float = 50.0
+    confidence: float = 50.0
+    sharpness: float = 50.0
     injury_proneness: float = 20.0
     injured: bool = False
+
+    # career / economic
+    age: int = 24
+    wage: int = 1000
+    contract_weeks: int = 104
+    potential: float = 60.0
+    development_rate = 1.0 #professionalism
 
     def availability_multiplier(self) -> float:
         if self.injured:
