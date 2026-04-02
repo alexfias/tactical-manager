@@ -8,9 +8,11 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QVBoxLayout,
     QWidget,
+    QTableWidget, 
+    QTableWidgetItem,
 )
 
-from tactical_manager.core.models import Tactic
+from tactical_manager.core.models import Tactic, Player
 from tactical_manager.core.season import Season
 from tactical_manager.ui.gui.dialogs import MatchSetupDialog
 from tactical_manager.ui.gui.styles import main_stylesheet
@@ -275,3 +277,51 @@ class GameWindow(QWidget):
         self.section_title.setText("Team Management")
         self.hide_all_content_widgets()
         self.team_management_widget.show()
+
+
+class AvailablePlayersTable(QTableWidget):
+    HEADERS = ["Name", "Pos", "CA", "Fit", "Fat", "Mor"]
+
+    def __init__(self, on_player_selected) -> None:
+        super().__init__()
+        self.on_player_selected = on_player_selected
+
+        self.setColumnCount(len(self.HEADERS))
+        self.setHorizontalHeaderLabels(self.HEADERS)
+        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.verticalHeader().setVisible(False)
+
+        self.itemSelectionChanged.connect(self._handle_selection_changed)
+
+    def load_players(self, players: list[Player]) -> None:
+        self.setRowCount(len(players))
+
+        for row, player in enumerate(players):
+            values = [
+                player.name,
+                player.position,
+                f"{current_ability(player):.1f}",
+                f"{player.fitness:.1f}",
+                f"{player.fatigue:.1f}",
+                f"{player.morale:.1f}",
+            ]
+
+            for col, value in enumerate(values):
+                item = QTableWidgetItem(value)
+                item.setData(Qt.UserRole, player)
+                self.setItem(row, col, item)
+
+        self.resizeColumnsToContents()
+
+    def selected_player(self) -> Player | None:
+        items = self.selectedItems()
+        if not items:
+            return None
+        return items[0].data(Qt.UserRole)
+
+    def _handle_selection_changed(self) -> None:
+        player = self.selected_player()
+        if player is not None:
+            self.on_player_selected(player)
