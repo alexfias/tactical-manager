@@ -125,3 +125,74 @@ def analyze_match_result(d: dict) -> list[str]:
             insights.append("A fair draw.")
 
     return insights
+
+
+def compute_player_ratings(result: MatchResult, home_xi: list, away_xi: list) -> dict:
+    ratings = {}
+
+    stats = result.stats
+
+    # team performance baseline
+    home_team_factor = team_performance_factor(
+        stats.home_goals, stats.away_goals, stats.home_xg, stats.away_xg
+    )
+    away_team_factor = team_performance_factor(
+        stats.away_goals, stats.home_goals, stats.away_xg, stats.home_xg
+    )
+
+    # initialize all players
+    for p in home_xi:
+        ratings[p.name] = 50 + home_team_factor
+
+    for p in away_xi:
+        ratings[p.name] = 50 + away_team_factor
+
+    # apply event-based contributions
+    apply_event_contributions(ratings, result.events)
+
+    # clamp
+    for k in ratings:
+        ratings[k] = max(0, min(100, round(ratings[k], 1)))
+
+    return ratings
+
+
+def team_performance_factor(goals_for, goals_against, xg_for, xg_against):
+    factor = 0
+
+    # result impact
+    if goals_for > goals_against:
+        factor += 5
+    elif goals_for < goals_against:
+        factor -= 5
+
+    # xG performance
+    if xg_for > xg_against + 0.5:
+        factor += 3
+    elif xg_for < xg_against - 0.5:
+        factor -= 3
+
+    return factor
+
+
+def apply_event_contributions(ratings: dict, events: list[str]):
+    for e in events:
+        if "GOAL" in e:
+            try:
+                # scorer
+                parts = e.split(":")[1].strip()
+                scorer = parts.split("(")[0].strip()
+
+                if scorer in ratings:
+                    ratings[scorer] += 8
+
+                # assist
+                if "assist:" in e:
+                    assist_part = e.split("assist:")[1]
+                    assister = assist_part.split(",")[0].strip()
+
+                    if assister in ratings:
+                        ratings[assister] += 5
+
+            except Exception:
+                continue

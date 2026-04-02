@@ -154,6 +154,8 @@ def simulate_match(
         stats=stats,
         events=sorted(events, key=event_minute_key),
         analysis_data=analysis_data,
+        home_xi=home_xi,
+        away_xi=away_xi,
     )
 
 

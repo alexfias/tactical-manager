@@ -76,18 +76,21 @@ class MatchResultWidget(QFrame):
         self.stats_layout.setSpacing(2)
         self.stats_container.setLayout(self.stats_layout)
 
+        self.analysis_label = QLabel()
+        self.analysis_label.setWordWrap(True)
+
+        self.ratings_label = QLabel()
+        self.ratings_label.setWordWrap(True)
+
         self.layout.addWidget(self.status_label)
         self.layout.addWidget(self.score_row)
         self.layout.addWidget(self.summary_title)
         self.layout.addWidget(self.stats_container)
+        self.layout.addWidget(self.analysis_label)
+        self.layout.addWidget(self.ratings_label)
         self.layout.addStretch()
 
         self.setLayout(self.layout)
-
-        self.analysis_label = QLabel()
-        self.analysis_label.setWordWrap(True)
-
-        self.layout.addWidget(self.analysis_label)
 
     def clear_stats(self) -> None:
         while self.stats_layout.count():
@@ -121,3 +124,11 @@ class MatchResultWidget(QFrame):
         text = "Match Analysis:\n\n"
         text += "\n".join(f"• {line}" for line in analysis)
         self.analysis_label.setText(text)
+
+    def set_ratings(self, ratings: dict):
+        lines = ["Player Ratings:\n"]
+
+        for name, rating in sorted(ratings.items(), key=lambda x: -x[1]):
+            lines.append(f"{name}: {rating}")
+
+        self.ratings_label.setText("\n".join(lines))

@@ -19,7 +19,7 @@ from tactical_manager.ui.gui.styles import main_stylesheet
 from tactical_manager.ui.gui.widgets.match_result_widget import MatchResultWidget
 from tactical_manager.ui.gui.widgets.team_management_widget import TeamManagementWidget
 from tactical_manager.ui.render import render_table
-from tactical_manager.core.analysis import analyze_match
+from tactical_manager.core.analysis import analyze_match, compute_player_ratings
 
 
 
@@ -222,6 +222,13 @@ class GameWindow(QWidget):
 
         analysis = analyze_match(fixture.result, is_home=True)
         self.match_result_widget.set_analysis(analysis)
+
+        ratings = compute_player_ratings(
+            fixture.result,
+            home_xi=fixture.result.home_xi,
+            away_xi=fixture.result.away_xi,
+        )
+        self.match_result_widget.set_ratings(ratings)
 
     def show_table(self) -> None:
         self.set_active_button(self.table_button)

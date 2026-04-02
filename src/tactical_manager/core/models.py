@@ -186,6 +186,8 @@ class MatchResult:
     stats: MatchStats
     events: List[str] = field(default_factory=list)
     analysis_data: dict | None = None
+    home_xi: list | None = None
+    away_xi: list | None = None
 
 @dataclass
 class Fixture:
