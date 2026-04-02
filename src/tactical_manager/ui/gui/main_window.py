@@ -19,6 +19,8 @@ from tactical_manager.ui.gui.styles import main_stylesheet
 from tactical_manager.ui.gui.widgets.match_result_widget import MatchResultWidget
 from tactical_manager.ui.gui.widgets.team_management_widget import TeamManagementWidget
 from tactical_manager.ui.render import render_table
+from tactical_manager.core.analysis import analyze_match
+
 
 
 class GameWindow(QWidget):
@@ -217,6 +219,9 @@ class GameWindow(QWidget):
             return
 
         self.set_match_content(fixture)
+
+        analysis = analyze_match(fixture.result, is_home=True)
+        self.match_result_widget.set_analysis(analysis)
 
     def show_table(self) -> None:
         self.set_active_button(self.table_button)

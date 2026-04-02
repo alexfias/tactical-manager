@@ -139,11 +139,21 @@ def simulate_match(
     stats.home_xg = round(stats.home_xg, 2)
     stats.away_xg = round(stats.away_xg, 2)
 
+    analysis_data = {
+        "home_xg": stats.home_xg,
+        "away_xg": stats.away_xg,
+        "home_shots": stats.home_shots,
+        "away_shots": stats.away_shots,
+        "home_goals": stats.home_goals,
+        "away_goals": stats.away_goals,
+    }
+
     return MatchResult(
         home_team=home.name,
         away_team=away.name,
         stats=stats,
         events=sorted(events, key=event_minute_key),
+        analysis_data=analysis_data,
     )
 
 

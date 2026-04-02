@@ -84,6 +84,11 @@ class MatchResultWidget(QFrame):
 
         self.setLayout(self.layout)
 
+        self.analysis_label = QLabel()
+        self.analysis_label.setWordWrap(True)
+
+        self.layout.addWidget(self.analysis_label)
+
     def clear_stats(self) -> None:
         while self.stats_layout.count():
             item = self.stats_layout.takeAt(0)
@@ -111,3 +116,8 @@ class MatchResultWidget(QFrame):
 
         for label, home_value, away_value in rows:
             self.stats_layout.addWidget(StatRow(label, home_value, away_value))
+
+    def set_analysis(self, analysis: list[str]):
+        text = "Match Analysis:\n\n"
+        text += "\n".join(f"• {line}" for line in analysis)
+        self.analysis_label.setText(text)
