@@ -74,8 +74,56 @@ class Player:
         return max(0.0, fatigue_factor * fitness_factor * morale_factor * familiarity_factor)
 
     def effective(self, attribute: str) -> float:
-        return getattr(self, attribute) * self.availability_multiplier()
+        base = self._get_attribute_value(attribute)
+        return base * self.availability_multiplier()
 
+    def _get_attribute_value(self, attribute: str) -> float:
+        # Direct attributes (still supported)
+        if hasattr(self, attribute):
+            return getattr(self, attribute)
+
+        # Derived attributes (NEW)
+        if attribute == "defending":
+            return (
+                    0.4 * self.tackling
+                    + 0.2 * self.positioning
+                    + 0.15 * self.anticipation
+                    + 0.1 * self.strength
+                    + 0.1 * self.heading
+                    + 0.05 * self.discipline
+            )
+
+        if attribute == "passing":
+            return (
+                    0.4 * self.passing
+                    + 0.2 * self.vision
+                    + 0.2 * self.technique
+                    + 0.2 * self.decision_making
+            )
+
+        if attribute == "finishing":
+            return (
+                    0.5 * self.finishing
+                    + 0.2 * self.composure
+                    + 0.2 * self.technique
+                    + 0.1 * self.off_the_ball
+            )
+
+        if attribute == "dribbling":
+            return (
+                    0.5 * self.dribbling
+                    + 0.3 * self.technique
+                    + 0.2 * self.agility
+            )
+
+        if attribute == "pace":
+            return (
+                    0.6 * self.pace
+                    + 0.4 * self.acceleration
+            )
+
+        # fallback → fail loudly (important!)
+        raise AttributeError(f"Unknown attribute requested: {attribute}")
 
 @dataclass
 class Tactic:
