@@ -21,6 +21,8 @@ from PySide6.QtWidgets import (
 )
 
 from tactical_manager.core.models import Club, Player
+from tactical_manager.ui.gui.widgets.team_lineup_widget import TeamLineupWidget
+
 
 def current_ability(player: Player) -> float:
     values = [
@@ -266,7 +268,7 @@ class SquadTableWidget(QTableWidget):
 
         header = self.horizontalHeader()
         header.setStretchLastSection(False)
-        header.setSectionResizeMode(0, QHeaderView.Stretch)   # Name
+        header.setSectionResizeMode(0, QHeaderView.Stretch)
         for col in range(1, len(self.COLUMN_HEADERS)):
             header.setSectionResizeMode(col, QHeaderView.ResizeToContents)
 
@@ -455,10 +457,7 @@ class TeamManagementWidget(QWidget):
         self.pages = QStackedWidget()
 
         self.squad_page = TeamOverviewWidget(club)
-        self.lineup_page = PlaceholderPage(
-            "Lineup",
-            "This page will let you choose the starting XI, bench, and role assignments."
-        )
+        self.lineup_page = TeamLineupWidget(club)
         self.tactics_page = PlaceholderPage(
             "Tactics",
             "This page will contain formation, team instructions, mentality, and match approach."
@@ -551,3 +550,4 @@ class TeamManagementWidget(QWidget):
 
     def refresh(self) -> None:
         self.squad_page.refresh()
+        self.lineup_page.refresh()

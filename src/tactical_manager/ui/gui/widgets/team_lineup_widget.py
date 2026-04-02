@@ -232,7 +232,7 @@ class AvailablePlayersTable(QTableWidget):
             }
         """)
 
-    def load_players(self, players: list[Player], selected_players: set[Player] | None = None) -> None:
+    def load_players(self, players: list[Player], selected_players: set[int] | None = None) -> None:
         selected_players = selected_players or set()
 
         self.setSortingEnabled(False)
@@ -255,7 +255,7 @@ class AvailablePlayersTable(QTableWidget):
                 if col >= 2:
                     item.setTextAlignment(Qt.AlignCenter)
 
-                if player in selected_players:
+                if id(player) in selected_players:
                     item.setBackground(QColor(50, 90, 50))
                 elif player.injured:
                     item.setBackground(QColor(255, 220, 220))
@@ -380,13 +380,19 @@ class TeamLineupWidget(QWidget):
     def refresh(self) -> None:
         self.load_existing_lineup()
         self.refresh_pitch()
-        selected_players = {player for player in self.lineup_slots.values() if player is not None}
+        selected_players = {id(player) for player in self.lineup_slots.values() if player is not None}
         self.players_table.load_players(self.club.team.squad, selected_players=selected_players)
         self.refresh_selection_box()
 
     def load_existing_lineup(self) -> None:
         for role in self.DEFAULT_ROLES:
             self.lineup_slots[role] = None
+
+        lineup_by_role = getattr(self.club.team, "lineup_by_role", None)
+        if isinstance(lineup_by_role, dict) and lineup_by_role:
+            for role in self.DEFAULT_ROLES:
+                self.lineup_slots[role] = lineup_by_role.get(role)
+            return
 
         starting_xi = getattr(self.club.team, "starting_xi", [])
         for role, player in zip(self.DEFAULT_ROLES, starting_xi):
@@ -454,6 +460,11 @@ class TeamLineupWidget(QWidget):
         self.refresh()
 
     def _write_back_starting_xi(self) -> None:
+        self.club.team.lineup_by_role = {
+            role: self.lineup_slots[role]
+            for role in self.DEFAULT_ROLES
+        }
+
         self.club.team.starting_xi = [
             self.lineup_slots[role]
             for role in self.DEFAULT_ROLES

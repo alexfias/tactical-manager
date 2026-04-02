@@ -95,6 +95,7 @@ class Team:
     squad: List[Player]
     tactic: Tactic = field(default_factory=Tactic)
     starting_xi: list[Player] = field(default_factory=list)
+    lineup_by_role: dict[str, Player | None] = field(default_factory=dict)
     played: int = 0
     wins: int = 0
     draws: int = 0
