@@ -21,6 +21,7 @@ venv/
 
 # Local club data
 data/clubs/*.json
+!data/clubs/example_*.json
 
 # (optional) other runtime data
 data/saves/
