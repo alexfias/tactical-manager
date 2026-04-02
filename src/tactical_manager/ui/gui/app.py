@@ -1,12 +1,15 @@
+from __future__ import annotations
+
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QApplication, QSplashScreen
+from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QSplashScreen
 
 from tactical_manager.core.season import Season
+from tactical_manager.ui.gui.club_selection_dialog import ClubSelectionDialog
 from tactical_manager.ui.gui.main_window import GameWindow
 
 
-def run_gui(season: Season) -> None:
+def run_gui(clubs: dict, fixtures: list, competition=None) -> None:
     app = QApplication([])
 
     pixmap = QPixmap("assets/splash.png")
@@ -21,12 +24,35 @@ def run_gui(season: Season) -> None:
 
     app.processEvents()
 
-    window = GameWindow(season)
+    def continue_startup() -> None:
+        dialog = ClubSelectionDialog(list(clubs.keys()))
+        splash.finish(dialog)
 
-    def start_main_window() -> None:
+        if dialog.exec() != QDialog.Accepted:
+            app.quit()
+            return
+
+        user_club = dialog.selected_club()
+        if user_club is None:
+            QMessageBox.warning(
+                None,
+                "No Club Selected",
+                "Please select a club.",
+            )
+            app.quit()
+            return
+
+        season = Season(
+            clubs=clubs,
+            fixtures=fixtures,
+            user_club=user_club,
+        )
+
+        window = GameWindow(season)
         window.show()
-        splash.finish(window)
 
-    QTimer.singleShot(1500, start_main_window)
+        app.main_window = window  # keep reference alive
+
+    QTimer.singleShot(1500, continue_startup)
 
     app.exec()
