@@ -4,7 +4,10 @@ from PySide6.QtWidgets import QLabel, QStackedWidget, QVBoxLayout, QWidget
 
 from tactical_manager.ui.gui.navigation.sub_nav_bar import SubNavBar
 from tactical_manager.ui.gui.widgets.team_lineup_widget import TeamLineupWidget
-from tactical_manager.ui.gui.widgets.team_management_widget import TeamManagementWidget
+from tactical_manager.ui.gui.widgets.team_management_widget import (
+    PlaceholderPage,
+    TeamOverviewWidget,
+)
 
 
 class TeamPage(QWidget):
@@ -23,13 +26,28 @@ class TeamPage(QWidget):
         self.sub_nav = SubNavBar([
             ("squad", "Squad"),
             ("lineup", "Lineup"),
+            ("tactics", "Tactics"),
+            ("training", "Training"),
+            ("transfers", "Transfers"),
         ])
         self.sub_nav.tab_selected.connect(self.switch_tab)
 
         self.stack = QStackedWidget()
         self.pages: dict[str, QWidget] = {
-            "squad": TeamManagementWidget(self.club),
+            "squad": TeamOverviewWidget(self.club),
             "lineup": TeamLineupWidget(self.club),
+            "tactics": PlaceholderPage(
+                "Tactics",
+                "This page will contain formation, team instructions, mentality, and match approach.",
+            ),
+            "training": PlaceholderPage(
+                "Training",
+                "This page will later control player development, workload, recovery, and focus areas.",
+            ),
+            "transfers": PlaceholderPage(
+                "Transfers",
+                "This page will later show available players, scouting, transfer targets, and contracts.",
+            ),
         }
 
         for page in self.pages.values():
