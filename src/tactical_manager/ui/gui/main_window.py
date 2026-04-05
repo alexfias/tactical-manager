@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from pathlib import Path
+
+from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QBrush, QFont, QPalette, QPixmap
 from PySide6.QtWidgets import QLabel, QStackedWidget, QVBoxLayout, QWidget
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 
 from tactical_manager.core.analysis import analyze_match, compute_player_ratings
 from tactical_manager.core.models import Tactic
@@ -100,13 +103,36 @@ class GameWindow(QWidget):
         self.setStyleSheet(main_stylesheet())
         self.switch_section("main")
 
+        # --- background music ---
+        music_path = Path("assets/music/background_music_1.mp3").resolve()
+
+        self.audio_output = QAudioOutput()
+        self.audio_output.setVolume(0.3)
+
+        self.music_player = QMediaPlayer()
+        self.music_player.setAudioOutput(self.audio_output)
+        self.music_player.setSource(QUrl.fromLocalFile(str(music_path)))
+        self.music_player.setLoops(QMediaPlayer.Infinite)
+        self.music_player.play()
+
+        self.settings_page.set_audio_state(volume=30, muted=False)
+
     def _connect_page_signals(self) -> None:
         if hasattr(self.advance_page, "advance_requested"):
             self.advance_page.advance_requested.connect(self.advance_time)
 
-        if hasattr(self.settings_page, "quit_button"):
-            self.settings_page.quit_button.clicked.connect(self.close)
+        if hasattr(self.settings_page, "volume_changed"):
+            self.settings_page.volume_changed.connect(self.set_music_volume)
 
+        if hasattr(self.settings_page, "mute_toggled"):
+            self.settings_page.mute_toggled.connect(self.set_music_muted)
+
+    def set_music_volume(self, value: int) -> None:
+        self.audio_output.setVolume(value / 100.0)
+
+    def set_music_muted(self, muted: bool) -> None:
+        self.audio_output.setMuted(muted)
+        
     def switch_section(self, section_id: str) -> None:
         page = self.pages.get(section_id)
         if page is None:
