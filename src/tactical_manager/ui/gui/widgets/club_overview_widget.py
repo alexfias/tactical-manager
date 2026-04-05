@@ -29,7 +29,7 @@ class ClubOverviewWidget(QWidget):
             f"Reputation: {club.identity.reputation}",
             "",
             "=== FINANCE ===",
-            f"Balance: {club.finance.balance}",
+            f"Balance: {club.finance.cash}",
             f"Transfer budget: {club.finance.transfer_budget}",
             f"Weekly wages: {club.finance.weekly_wages}",
             f"Wage budget: {club.finance.wage_budget}",

@@ -327,20 +327,38 @@ class ClubIdentity:
         return cls(**data)
 
 
+from dataclasses import dataclass, asdict
+from typing import Any
+
+
 @dataclass
 class ClubFinance:
-    balance: int = 0
-    transfer_budget: int = 0
-    weekly_wages: int = 0
-    wage_budget: int = 0
-    sponsorship_income: int = 0
-    matchday_base_income: int = 0
+    # liquidity
+    cash: float = 0.0
+
+    # budgets
+    transfer_budget: float = 0.0
+    wage_budget: float = 0.0
+
+    # ongoing flows
+    weekly_wages: float = 0.0
+    sponsorship_income: float = 0.0
+    matchday_base_income: float = 0.0
+
+    # liabilities (important for balance sheet later)
+    debt: float = 0.0
+    transfer_payables: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ClubFinance":
+        data = dict(data)
+
+        if "balance" in data and "cash" not in data:
+            data["cash"] = data.pop("balance")
+
         return cls(**data)
 
 

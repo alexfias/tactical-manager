@@ -146,6 +146,7 @@ def parse_club(data: dict) -> Club:
     team_data = data["team"]
 
     finance_data = data.get("finance", {})
+    finance = ClubFinance.from_dict(finance_data)
     infrastructure_data = data.get("infrastructure", {})
     support_data = data.get("support", {})
     board_data = data.get("board", {})
@@ -157,14 +158,7 @@ def parse_club(data: dict) -> Club:
             reputation=data.get("reputation", 50.0),
         ),
         team=parse_team(team_data),
-        finance=ClubFinance(
-            balance=finance_data.get("balance", 0),
-            transfer_budget=finance_data.get("transfer_budget", 0),
-            weekly_wages=finance_data.get("weekly_wages", 0),
-            wage_budget=finance_data.get("wage_budget", 0),
-            sponsorship_income=finance_data.get("sponsorship_income", 0),
-            matchday_base_income=finance_data.get("matchday_base_income", 0),
-        ),
+        finance=finance,
         infrastructure=ClubInfrastructure(
             stadium_capacity=infrastructure_data.get("stadium_capacity", 10000),
             ticket_price=infrastructure_data.get("ticket_price", 20),
