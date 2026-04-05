@@ -1,12 +1,22 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QLabel, QSlider, QVBoxLayout, QWidget, QCheckBox
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QLabel,
+    QPushButton,
+    QSlider,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 class SettingsPage(QWidget):
     volume_changed = Signal(int)   # 0–100
     mute_toggled = Signal(bool)
+
+    save_game_requested = Signal()
+    load_game_requested = Signal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -41,6 +51,19 @@ class SettingsPage(QWidget):
         self.mute_checkbox.toggled.connect(self.mute_toggled.emit)
         layout.addWidget(self.mute_checkbox)
 
+        # --- Save / Load section ---
+        save_title = QLabel("Game")
+        save_title.setStyleSheet("font-weight: bold; color: white;")
+        layout.addWidget(save_title)
+
+        self.save_button = QPushButton("Save Game")
+        self.save_button.clicked.connect(self.save_game_requested.emit)
+        layout.addWidget(self.save_button)
+
+        self.load_button = QPushButton("Load Game")
+        self.load_button.clicked.connect(self.load_game_requested.emit)
+        layout.addWidget(self.load_button)
+
         layout.addStretch()
 
     def _on_volume_changed(self, value: int) -> None:
@@ -48,7 +71,7 @@ class SettingsPage(QWidget):
         self.volume_changed.emit(value)
 
     def set_audio_state(self, volume: int, muted: bool) -> None:
-        """Initialize UI from current audio settings"""
+        """Initialize UI from current audio settings."""
         self.volume_slider.blockSignals(True)
         self.mute_checkbox.blockSignals(True)
 

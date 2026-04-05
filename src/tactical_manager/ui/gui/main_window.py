@@ -18,7 +18,7 @@ from tactical_manager.ui.gui.pages.season_page import SeasonPage
 from tactical_manager.ui.gui.pages.settings_page import SettingsPage
 from tactical_manager.ui.gui.pages.team_page import TeamPage
 from tactical_manager.ui.gui.styles import main_stylesheet
-
+from tactical_manager.core.game_state import GameState
 
 class PlaceholderPage(QWidget):
     def __init__(self, title: str):
@@ -44,8 +44,14 @@ class GameWindow(QWidget):
     def __init__(self, season: Season):
         super().__init__()
 
-        self.season = season
-        self.club = self.season.clubs[self.season.user_club]
+        first_club = next(iter(season.clubs.values()))
+
+        self.game_state = GameState(
+            season=season,
+            user_club_name=first_club.identity.name,
+        )
+        self.season = self.game_state.season
+        self.club = self.game_state.user_club
 
         self.setWindowTitle("Tactical Manager")
         self.resize(1000, 650)

@@ -123,6 +123,23 @@ class Season:
             reverse=True,
         )
 
+    def to_dict(self) -> dict:
+        return {
+            "clubs": [club.to_dict() for club in self.clubs],
+            "fixtures": [fixture.to_dict() for fixture in self.fixtures],
+            "current_round": self.current_round,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Season":
+        clubs = [Club.from_dict(c) for c in data.get("clubs", [])]
+        fixtures = [Fixture.from_dict(f) for f in data.get("fixtures", [])]
+
+        season = cls(clubs=clubs)
+        season.fixtures = fixtures
+        season.current_round = data.get("current_round", 0)
+        return season
+
 def create_double_round_robin(team_names: list[str]) -> list[Fixture]:
     fixtures: list[Fixture] = []
     for i, home in enumerate(team_names):
