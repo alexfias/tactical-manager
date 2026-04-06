@@ -345,9 +345,13 @@ class ClubFinance:
     sponsorship_income: float = 0.0
     matchday_base_income: float = 0.0
 
-    # liabilities (important for balance sheet later)
+    # liabilities
     debt: float = 0.0
     transfer_payables: float = 0.0
+
+    @property
+    def weekly_result(self) -> float:
+        return self.sponsorship_income + self.matchday_base_income - self.weekly_wages
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
