@@ -1,80 +1,139 @@
 # Tactical Manager
 
-A football management game prototype focused on meaningful decisions,
-tactical trade-offs, and long-term squad dynamics.
+A football management game focused on **meaningful decisions**,  
+**tactical trade-offs**, and **long-term club development**.
+
+---
 
 ## 🎮 Current State
 
-Tactical Manager is now a **playable prototype** with both CLI and Qt
-GUI interfaces.
+Tactical Manager is an **early-stage but playable game prototype**  
+with both CLI and a growing PySide6 (Qt) GUI.
 
-You can: - Play through a season - Simulate matches - View league
-tables - Track match history - Interact via command line or graphical
-interface
+You can currently:
 
-## 🧠 Core Idea
+- Simulate full seasons
+- Play matches via a match engine
+- View league tables and match results
+- Navigate through multiple GUI pages (team, season, club, settings)
+- Manage your club at a basic level
 
-Every decision affects the future state of the club through: - fatigue -
-morale - tactical choices - squad structure
+---
 
-The goal is to build a system where **decisions have long-term
-consequences**, not just short-term outcomes.
+## 🧠 Vision
 
-## 🚀 Features
+The goal is to build a football manager where:
 
--   Match simulation engine
--   League system with standings
--   Team and squad structure
--   CLI interface (stable)
--   Qt GUI (early version with splash screen)
+- Decisions have **long-term consequences**
+- Systems are **deep but transparent**
+- Trade-offs matter (short-term vs long-term success)
+
+Core mechanics will include:
+
+- Player development & aging
+- Tactical identity
+- Financial constraints
+- Squad planning over multiple seasons
+
+---
+
+## 🚀 Features (Current)
+
+- Match simulation engine
+- League system with standings
+- Multi-page GUI (PySide6)
+- Basic club and team structure
+- CLI interface (stable)
+
+---
 
 ## 🖥️ Run
 
 ### CLI
 
+```bash
 python scripts/run_cli.py
+```
 
-### GUI (Qt)
+### GUI
 
+```bash
 python scripts/run_gui.py
+```
+
+---
 
 ## 🧱 Project Structure
 
-src/tactical_manager/ ├── core/ \# Game logic (season, teams, match
-engine) ├── ui/ │ ├── cli.py \# Command line interface │ └── gui_qt.py
-\# Qt GUI
+```
+src/tactical_manager/
+├── core/                 # Core game logic (season, match engine, models)
+├── ui/
+│   ├── cli/              # CLI interface
+│   └── gui/
+│       ├── pages/        # Main UI pages (team, club, season, etc.)
+│       ├── widgets/      # Reusable UI components
+│       ├── navigation/   # Navigation system (bottom bar, routing)
+│       └── app.py        # GUI entry point
+```
+
+---
 
 ## 🔧 Tech Stack
 
--   Python
--   PySide6 (Qt for GUI)
+- Python
+- PySide6 (Qt GUI)
+
+---
 
 ## 📍 Roadmap
 
-Next steps: - GUI match setup (tactics & mentality) - Improved
-navigation (dashboard, views) - Team management (lineups,
-substitutions) - Player development & long-term dynamics - Financial
-system
+### Short Term (v0.2.x)
+
+- Financial system (revenue, costs, balance sheet)
+- Improved navigation & UI structure
+- Team management (lineups, roles, substitutions)
+- Match setup (tactics, mentality)
+
+### Mid Term
+
+- Player development system
+- Transfers & contracts
+- Scouting & recruitment
+
+### Long Term
+
+- Advanced match simulation (spatial/2D engine)
+- AI managers & league dynamics
+- Multi-season progression with deep systems
+
+---
 
 ## ⚠️ Status
 
-This is an **early-stage prototype** under active development. Expect
-frequent changes and breaking updates.
+This is an **actively developed early-stage project**.  
+Expect frequent updates and breaking changes.
 
-------------------------------------------------------------------------
+---
 
-Built as an experiment in designing a football manager where **decisions
-truly matter**.
+## 📦 Version
 
+### v0.1.0 — First Playable Version
 
-## v0.1.0 — First Playable Version
+- CLI + GUI
+- Match simulation
+- League system
 
-- GUI and CLI interface
-- Match simulation engine
-- Tactical decisions influence outcomes
-- League table and match history tracking
+### Next (v0.2.0 goal)
 
-Next:
-- Improved UI layout
-- Squad management
-- Match visualization
+- Full season simulation with finances
+- Functional team & club management UI
+
+---
+
+## 💡 Philosophy
+
+This project explores a key idea:
+
+> A great management game is not about options —  
+> it’s about **meaningful consequences**.
