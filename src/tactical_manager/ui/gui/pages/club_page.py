@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 
 from tactical_manager.ui.gui.pages.board_page import BoardPage
 from tactical_manager.ui.gui.pages.finance_page import FinancePage
+from tactical_manager.ui.gui.pages.stadium_page import StadiumPage
 from tactical_manager.ui.gui.widgets.club_overview_widget import ClubOverviewWidget
 
 
@@ -47,7 +48,7 @@ class ClubPage(QWidget):
 
         self.overview_widget = ClubOverviewWidget(self.club)
         self.finance_page = FinancePage(self.club)
-        self.infrastructure_page = PlaceholderClubSection("Infrastructure")
+        self.infrastructure_page = StadiumPage(self.club)
         self.support_page = PlaceholderClubSection("Support")
         self.board_page = BoardPage(self.club)
 

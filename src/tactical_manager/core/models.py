@@ -417,7 +417,19 @@ class Club:
     infrastructure: ClubInfrastructure
     support: ClubSupport
     board: BoardExpectations
-
+    stadium: Stadium = field(default_factory=lambda: Stadium(
+        name="Club Stadium",
+        sections=[
+            StadiumSection(name="North Stand", capacity=3000, covered=True),
+            StadiumSection(name="South Stand", capacity=3000, covered=False),
+            StadiumSection(name="West Stand", capacity=2000, covered=True),
+            StadiumSection(name="East Stand", capacity=2000, covered=False),
+        ],
+        pitch_quality=1,
+        floodlights=True,
+        scoreboard=True,
+    ))
+    
     def to_dict(self) -> dict[str, Any]:
         return {
             "identity": self.identity.to_dict(),
@@ -427,6 +439,23 @@ class Club:
             "infrastructure": self.infrastructure.to_dict(),
             "support": self.support.to_dict(),
             "board": self.board.to_dict(),
+            "stadium": {
+                "name": self.stadium.name,
+                "sections": [
+                    {
+                        "name": s.name,
+                        "capacity": s.capacity,
+                        "covered": s.covered,
+                        "quality": s.quality,
+                        "section_type": s.section_type,
+                        "expansion_level": s.expansion_level,
+                    }
+                    for s in self.stadium.sections
+                ],
+                "pitch_quality": self.stadium.pitch_quality,
+                "floodlights": self.stadium.floodlights,
+                "scoreboard": self.stadium.scoreboard,
+            },
         }
 
     @classmethod
@@ -462,3 +491,21 @@ class LeagueTableRow:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "LeagueTableRow":
         return cls(**data)
+
+
+@dataclass
+class StadiumSection:
+    name: str
+    capacity: int
+    covered: bool = False
+    quality: int = 1
+    section_type: str = "seated"   # seated, standing, vip
+    expansion_level: int = 0
+
+@dataclass
+class Stadium:
+    name: str
+    sections: list[StadiumSection] = field(default_factory=list)
+    pitch_quality: int = 1
+    floodlights: bool = False
+    scoreboard: bool = False
